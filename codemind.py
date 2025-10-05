@@ -252,8 +252,37 @@ def search_existing_code(query: str, limit: int = 5) -> str:
 def get_file_context(file_path: str) -> str:
     """Get detailed information about a file."""
     lazy_scan()
-    row = db_conn.execute('SELECT path, purpose, last_scanned, key_exports, size_kb FROM files WHERE path = ?', (file_path,)).fetchone()
-    if not row: return f" File not found: {file_path}"
+    
+    # Try to resolve the file path - handle both relative and absolute paths
+    project_root = Path(CONFIG["project_root"]).resolve()
+    file_path_obj = Path(file_path)
+    
+    # If it's a relative path, try to resolve it relative to project_root
+    if not file_path_obj.is_absolute():
+        resolved_path = (project_root / file_path).resolve()
+    else:
+        resolved_path = file_path_obj.resolve()
+    
+    # Convert to string for database lookup
+    search_path = str(resolved_path)
+    
+    # Try exact match first
+    row = db_conn.execute('SELECT path, purpose, last_scanned, key_exports, size_kb FROM files WHERE path = ?', (search_path,)).fetchone()
+    
+    # If not found, try searching by filename (basename match)
+    if not row:
+        filename = os.path.basename(file_path)
+        rows = db_conn.execute('SELECT path, purpose, last_scanned, key_exports, size_kb FROM files WHERE path LIKE ?', (f'%{filename}',)).fetchall()
+        if rows:
+            if len(rows) == 1:
+                row = rows[0]
+            else:
+                matches = '\n  '.join([r[0] for r in rows])
+                return f" Multiple files found matching '{filename}':\n  {matches}\n\nPlease specify the full path."
+    
+    if not row:
+        return f" File not found: {file_path}\nSearched for: {search_path}\nTry using the full path or check if the file has been indexed."
+    
     p, pu, ls, ke, sz = row
     exports = json.loads(ke) if ke else []
     return f" {p}\n Purpose: {pu}\n Last scanned: {ls}\n Size: {sz} KB\n Exports: {', '.join(exports) or 'None'}"
