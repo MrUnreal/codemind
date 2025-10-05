@@ -11,6 +11,8 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+# Suppress FastMCP startup banner for clean VS Code MCP output
+os.environ['FASTMCP_QUIET'] = '1'
 
 try:
     import numpy as np
@@ -25,17 +27,23 @@ log_dir = Path(".codemind/logs")
 log_dir.mkdir(parents=True, exist_ok=True)
 session_log_file = log_dir / f"session_{session_id}.log"
 
-# Configure logging to both console and session file
+# Configure logging to both console and session file with UTF-8 encoding
+import sys
+file_handler = logging.FileHandler(session_log_file, encoding='utf-8')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# For MCP stderr output, use minimal logging to avoid VS Code warnings
+stream_handler = logging.StreamHandler(sys.stderr)
+stream_handler.setLevel(logging.WARNING)  # Only show warnings/errors to MCP client
+stream_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(session_log_file),
-        logging.StreamHandler()
-    ]
+    handlers=[file_handler, stream_handler]
 )
 logger = logging.getLogger(__name__)
-logger.info(f"📝 Session logging to: {session_log_file}")
+logger.info(f"Session logging to: {session_log_file}")  # No emoji for console compatibility
 
 try:
     from radon.complexity import cc_visit
@@ -2388,4 +2396,5 @@ def lazy_scan():
 
 if __name__ == "__main__":
     init_server()
-    mcp.run()
+    # Run with minimal logging for clean VS Code MCP integration
+    mcp.run(log_level="ERROR")
