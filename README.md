@@ -20,22 +20,37 @@ CodeMind is a lightweight Model Context Protocol (MCP) server that gives GitHub 
 
 ## Features
 
-### 🛠️ MCP Tools for Copilot (9 Total)
+### 🛠️ MCP Tools for Copilot (20 Total)
 
-#### Core Discovery Tools
+#### Core Discovery Tools (5)
 1. **`search_existing_code`** - Semantic search for existing functionality
 2. **`check_functionality_exists`** - Quick yes/no check if functionality exists
-3. **`search_by_export`** ⭐ NEW - Find where functions/classes are defined
-
-#### File Analysis Tools
+3. **`search_by_export`** - Find where functions/classes are defined
 4. **`get_file_context`** - Understand what a file does and why it exists
-5. **`get_similar_files`** ⭐ NEW - Find files with similar patterns/structure
-6. **`find_dependencies`** ⭐ NEW - Analyze what imports a file and what it imports
+5. **`query_recent_changes`** - See what's been modified recently
 
-#### Project Memory Tools
-7. **`record_decision`** - Store architectural decisions and rationale
-8. **`list_all_decisions`** ⭐ NEW - Query decision history with keyword filtering
-9. **`query_recent_changes`** - See what's been modified recently
+#### Enhanced Discovery Tools (4)
+6. **`get_similar_files`** - Find files with similar patterns/structure
+7. **`find_dependencies`** - Bidirectional dependency analysis
+8. **`list_all_decisions`** - Query decision history with keyword filtering
+9. **`record_decision`** - Store architectural decisions and rationale
+
+#### Indexing & Analysis Tools (3)
+10. **`force_reindex`** - Manually trigger full project re-scan
+11. **`index_file`** - Index specific file immediately
+12. **`get_call_tree`** - Function call graph (callers + callees)
+
+#### Refactoring Safety Tools (5)
+13. **`check_breaking_changes`** - Identify impacted code before refactoring
+14. **`find_usage_examples`** - Real-world usage patterns
+15. **`find_todo_and_fixme`** - Track technical debt (TODO/FIXME/HACK)
+16. **`get_file_history_summary`** - Git commit history analysis
+17. **`get_test_coverage`** - Estimate test coverage
+
+#### Zero-LLM Static Analysis Tools (3) ⭐ NEW
+18. **`get_code_metrics_summary`** - Comprehensive code metrics (LOC, complexity, maintainability)
+19. **`get_import_graph`** - Dependency visualization with circular detection
+20. **`find_configuration_inconsistencies`** - Config analysis and secret detection
 
 ### 🚀 Auto-Indexing System
 
