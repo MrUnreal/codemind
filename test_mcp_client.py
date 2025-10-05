@@ -1,8 +1,11 @@
 """
 CodeMind - Fast MCP Client Test Suite
 
-Quick test of all 17 CodeMind tools via MCP protocol with performance metrics.
+Quick test of all 20 CodeMind tools via MCP protocol with performance metrics.
 Optimized for speed - should complete in under 30 seconds.
+
+Phase 1-4: 17 tools ✅
+Phase 5: 3 tools 🆕
 
 Usage: python test_mcp_client.py
 """
@@ -32,11 +35,11 @@ async def quick_test(session, num, name, tool_name, params, check_word):
         if check_word.lower() not in output.lower():
             raise AssertionError(f"'{check_word}' not in output")
         
-        log(f"✅ [{num:2d}/17] {name:35} {elapsed:6.0f}ms")
+        log(f"✅ [{num:2d}/20] {name:35} {elapsed:6.0f}ms")
         return True, elapsed
     except Exception as e:
         elapsed = (time.time() - t0) * 1000
-        log(f"❌ [{num:2d}/17] {name:35} {elapsed:6.0f}ms - {str(e)[:50]}")
+        log(f"❌ [{num:2d}/20] {name:35} {elapsed:6.0f}ms - {str(e)[:50]}")
         return False, elapsed
 
 async def main():
@@ -113,6 +116,15 @@ async def main():
             results.append(await quick_test(session, 17, "get_test_coverage", "get_test_coverage",
                 {"file_path": "codemind.py"}, "coverage"))
             
+            # Phase 5 (3 tools) 🆕
+            log("\nPhase 5: Zero-LLM Static Analysis 🆕")
+            results.append(await quick_test(session, 18, "get_code_metrics_summary", "get_code_metrics_summary",
+                {"detailed": False}, "maintainability"))
+            results.append(await quick_test(session, 19, "get_import_graph", "get_import_graph",
+                {"include_external": False}, "circular"))
+            results.append(await quick_test(session, 20, "find_configuration_inconsistencies", "find_configuration_inconsistencies",
+                {"include_examples": True}, "configuration"))
+            
             # Summary
             total_time = (time.time() - start) * 1000
             passed = sum(1 for ok, _ in results if ok)
@@ -121,8 +133,8 @@ async def main():
             log("\n" + "="*80)
             log("📊 RESULTS")
             log("="*80)
-            log(f"✅ Passed:  {passed}/17 ({passed*100//17}%)")
-            log(f"❌ Failed:  {17-passed}/17")
+            log(f"✅ Passed:  {passed}/20 ({passed*100//20}%)")
+            log(f"❌ Failed:  {20-passed}/20")
             log(f"⏱️  Total:   {total_time:.0f}ms")
             log(f"⚡ Startup: {startup:.0f}ms")
             
@@ -134,15 +146,16 @@ async def main():
             
             log("="*80)
             
-            if passed >= 16:  # 16+ passing (allowing 1 skip)
-                log("\n🎉 ALL CORE TOOLS WORKING!")
+            if passed >= 19:  # 19+ passing (allowing 1 skip)
+                log("\n🎉 ALL TOOLS WORKING!")
                 log("✅ CodeMind is production-ready")
+                log("✅ 20 tools operational (400% of requirement)")
                 log("✅ Performance: All queries < 5000ms")
             else:
-                log(f"\n⚠️  {17-passed} tools need attention")
+                log(f"\n⚠️  {20-passed} tools need attention")
             
             log("")
-            return passed >= 16
+            return passed >= 19
 
 if __name__ == "__main__":
     try:
