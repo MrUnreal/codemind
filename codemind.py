@@ -1,10 +1,16 @@
 ﻿#!/usr/bin/env python3
 """CodeMind - MCP Memory Server using FastMCP"""
-import json, logging, os, sqlite3, hashlib, re, ast
+import json, logging, os, sqlite3, hashlib, re, ast, warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Set, Dict, Optional
 from fastmcp import FastMCP
+
+# Suppress transformers/sentence-transformers progress bars and warnings for clean MCP output
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 try:
     import numpy as np
@@ -2360,7 +2366,14 @@ def init_server():
     db_conn = init_database()
     if HAS_EMBEDDINGS:
         try:
+            # Load model and suppress progress bars for clean MCP output
             embedding_model = SentenceTransformer(CONFIG['embedding_model'])
+            # Monkey-patch the encode method to suppress progress bars
+            original_encode = embedding_model.encode
+            def encode_no_progress(*args, **kwargs):
+                kwargs['show_progress_bar'] = False
+                return original_encode(*args, **kwargs)
+            embedding_model.encode = encode_no_progress
         except Exception as e:
             logger.warning(f"Model load error: {e}")
 
