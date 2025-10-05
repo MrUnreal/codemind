@@ -1,9 +1,9 @@
 ﻿#!/usr/bin/env python3
 """CodeMind - MCP Memory Server using FastMCP"""
-import json, logging, os, sqlite3, hashlib, re
+import json, logging, os, sqlite3, hashlib, re, ast
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List
+from typing import List, Set, Dict, Optional
 from fastmcp import FastMCP
 
 try:
@@ -13,8 +13,32 @@ try:
 except ImportError:
     HAS_EMBEDDINGS = False
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Setup session logging to .codemind/logs/
+session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_dir = Path(".codemind/logs")
+log_dir.mkdir(parents=True, exist_ok=True)
+session_log_file = log_dir / f"session_{session_id}.log"
+
+# Configure logging to both console and session file
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(session_log_file),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
+logger.info(f"📝 Session logging to: {session_log_file}")
+
+try:
+    from radon.complexity import cc_visit
+    from radon.metrics import mi_visit
+    from radon.raw import analyze
+    HAS_RADON = True
+except ImportError:
+    HAS_RADON = False
+    logger.warning("⚠️  Radon not installed - code metrics will use fallback implementation")
 
 CONFIG = {"project_root": "./", "db_path": ".codemind/memory.db", "watched_extensions": [".py", ".js", ".ts", ".jsx", ".tsx", ".vue", ".java", ".cs", ".cpp", ".go", ".rs"], "max_file_size_kb": 500, "embedding_model": "all-MiniLM-L6-v2"}
 mcp = FastMCP("CodeMind")
@@ -55,6 +79,109 @@ def extract_key_exports(content, file_path):
     if file_path.endswith(('.js', '.ts', '.jsx', '.tsx')):
         exports.extend(re.findall(r'export\s+(?:function|class|const|let|var)\s+(\w+)', content)[:10])
     return list(set(exports))[:15]
+
+# AST-based helper functions for production-quality code analysis
+class ImportVisitor(ast.NodeVisitor):
+    """Extract imports using AST for accurate parsing"""
+    def __init__(self):
+        self.imports: Set[str] = set()
+    
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.imports.add(alias.name)
+        self.generic_visit(node)
+    
+    def visit_ImportFrom(self, node):
+        if node.module:
+            self.imports.add(node.module)
+        self.generic_visit(node)
+
+class CallVisitor(ast.NodeVisitor):
+    """Extract function calls using AST for accurate parsing"""
+    def __init__(self):
+        self.calls: Set[str] = set()
+    
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name):
+            self.calls.add(node.func.id)
+        elif isinstance(node.func, ast.Attribute):
+            self.calls.add(node.func.attr)
+        self.generic_visit(node)
+
+class FunctionVisitor(ast.NodeVisitor):
+    """Extract function definitions and their details using AST"""
+    def __init__(self):
+        self.functions: List[Dict] = []
+    
+    def visit_FunctionDef(self, node):
+        self.functions.append({
+            'name': node.name,
+            'line': node.lineno,
+            'params': len(node.args.args),
+            'decorators': len(node.decorator_list),
+            'has_docstring': ast.get_docstring(node) is not None
+        })
+        self.generic_visit(node)
+    
+    def visit_AsyncFunctionDef(self, node):
+        self.visit_FunctionDef(node)
+
+def parse_imports_ast(content: str) -> Set[str]:
+    """Parse imports using AST (production-quality replacement for regex)"""
+    try:
+        tree = ast.parse(content)
+        visitor = ImportVisitor()
+        visitor.visit(tree)
+        return visitor.imports
+    except SyntaxError:
+        # Fallback to regex if AST parsing fails
+        imports = set()
+        import_patterns = [
+            r'^\s*import\s+([a-zA-Z_][a-zA-Z0-9_]*)',
+            r'^\s*from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import',
+        ]
+        for pattern in import_patterns:
+            imports.update(re.findall(pattern, content, re.MULTILINE))
+        return imports
+
+def parse_calls_ast(content: str, function_name: str) -> Set[str]:
+    """Parse function calls using AST (production-quality replacement for regex)"""
+    try:
+        tree = ast.parse(content)
+        # Find the specific function
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
+                visitor = CallVisitor()
+                visitor.visit(node)
+                # Filter out built-ins and common keywords
+                keywords = {'len', 'str', 'int', 'float', 'list', 'dict', 'set', 'tuple', 'print', 'range'}
+                return {c for c in visitor.calls if c not in keywords}
+        return set()
+    except SyntaxError:
+        # Fallback to regex
+        import re
+        func_pattern = rf'def {re.escape(function_name)}\s*\('
+        func_match = re.search(func_pattern, content)
+        if not func_match:
+            return set()
+        start = func_match.start()
+        next_def = re.search(r'\ndef \w+\s*\(', content[start + 1:])
+        end = start + next_def.start() if next_def else len(content)
+        func_body = content[start:end]
+        call_pattern = r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\('
+        calls = set(re.findall(call_pattern, func_body))
+        keywords = {'if', 'for', 'while', 'return', 'yield', 'def', 'class', 'with', 'try', 'except', 'print'}
+        return {c for c in calls if c not in keywords and c != function_name}
+
+def parse_functions_ast(content: str) -> List[Dict]:
+    """Parse function definitions using AST"""
+    try:
+        tree = ast.parse(content)
+        visitor = FunctionVisitor()
+        visitor.visit(tree)
+        return visitor.functions
+    except SyntaxError:
+        return []
 
 def _index_file_internal(file_path, conn):
     """Internal function to index a file - called by scan_project"""
@@ -174,21 +301,15 @@ def find_dependencies(file_path: str) -> str:
     if not os.path.exists(file_path):
         return f"❌ File not found: {file_path}"
     
-    # Parse imports from this file
+    # Parse imports from this file using AST (production-quality)
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
     except Exception as e:
         return f"❌ Error reading file: {e}"
     
-    # Extract imports (simple regex - covers most cases)
-    imports = set()
-    import_patterns = [
-        r'^\s*import\s+([a-zA-Z_][a-zA-Z0-9_]*)',
-        r'^\s*from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import',
-    ]
-    for pattern in import_patterns:
-        imports.update(re.findall(pattern, content, re.MULTILINE))
+    # Use AST-based parsing for accurate import extraction
+    imports = parse_imports_ast(content)
     
     # Find files that import this file
     file_name = os.path.basename(file_path).replace('.py', '')
@@ -198,10 +319,12 @@ def find_dependencies(file_path: str) -> str:
         try:
             with open(path[0], 'r', encoding='utf-8', errors='ignore') as f:
                 other_content = f.read()
-                if re.search(rf'\bimport\s+{file_name}\b', other_content) or \
-                   re.search(rf'\bfrom\s+.*{file_name}\b', other_content):
+                other_imports = parse_imports_ast(other_content)
+                # Check if this file is imported
+                if file_name in other_imports or any(file_name in imp for imp in other_imports):
                     importers.append(path[0])
-        except: pass
+        except: 
+            pass
     
     lines = [f"📦 Dependencies for: {file_path}\n"]
     lines.append(f"\n📥 This file imports ({len(imports)}):")
@@ -221,6 +344,8 @@ def find_dependencies(file_path: str) -> str:
             lines.append(f"  ... and {len(importers) - 20} more")
     else:
         lines.append("  (none)")
+    
+    lines.append(f"\n✨ Using AST-based parsing for production-quality analysis")
     
     return "\n".join(lines)
 
@@ -425,34 +550,30 @@ def _get_call_tree_impl(function_name: str, file_path: str = None, depth: int = 
         try:
             content = fpath.read_text(encoding='utf-8', errors='ignore')
             
-            # Find function calls within the function
-            # Simple regex approach - matches function_name(
+            # Use AST for production-quality function call extraction
             import re
             
-            # Find the function definition
-            func_pattern = rf'def {re.escape(function_name)}\s*\('
-            func_match = re.search(func_pattern, content)
-            
-            if not func_match:
-                continue
+            # Find the function definition using AST
+            try:
+                tree = ast.parse(content)
+                func_found = False
+                for node in ast.walk(tree):
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        if node.name == function_name:
+                            func_found = True
+                            break
+                if not func_found:
+                    continue
+            except SyntaxError:
+                # Fallback to regex if AST fails
+                func_pattern = rf'def {re.escape(function_name)}\s*\('
+                if not re.search(func_pattern, content):
+                    continue
             
             result.append(f"\n📁 Found in: {fpath.relative_to(CONFIG['project_root'])}")
             
-            # Extract function body (simplified - up to next def or end)
-            start = func_match.start()
-            # Find next function def or end of file
-            next_def = re.search(r'\ndef \w+\s*\(', content[start + 1:])
-            end = start + next_def.start() if next_def else len(content)
-            func_body = content[start:end]
-            
-            # Find function calls within the body
-            # Pattern: word followed by (
-            call_pattern = r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\('
-            calls = re.findall(call_pattern, func_body)
-            
-            # Filter out common keywords and the function itself
-            keywords = {'if', 'for', 'while', 'return', 'yield', 'def', 'class', 'with', 'try', 'except', 'print'}
-            calls = [c for c in calls if c not in keywords and c != function_name]
+            # Use AST-based call extraction
+            calls = parse_calls_ast(content, function_name)
             unique_calls = sorted(set(calls))[:10]  # Top 10 unique calls
             
             if unique_calls:
@@ -1253,58 +1374,110 @@ def get_code_metrics_summary(detailed: bool = False) -> str:
                         if file_has_docstring:
                             files_with_docstrings += 1
                         
-                        # Extract functions and complexity
+                        # Extract functions and complexity using AST/radon for Python
                         file_functions = 0
                         file_classes = 0
                         file_complexity = 0
                         
-                        # Find functions (Python, JS, TS)
-                        function_pattern = r'(?:def|function|const\s+\w+\s*=\s*(?:async\s+)?\()\s+(\w+)\s*\('
-                        for match in re.finditer(function_pattern, content):
-                            file_functions += 1
-                            total_functions += 1
-                            
-                            # Get function body to analyze
-                            func_start = match.start()
-                            func_content = content[func_start:func_start + 2000]  # Sample
-                            
-                            # Count parameters
-                            param_match = re.search(r'\((.*?)\)', func_content)
-                            if param_match:
-                                params = [p.strip() for p in param_match.group(1).split(',') if p.strip() and p.strip() != 'self']
-                                param_count = len(params)
-                                param_counts.append(param_count)
-                                if param_count > 5:
-                                    code_smells["long_parameter_lists"] += 1
-                            
-                            # Estimate function length (lines until next def/class)
-                            func_lines = len(func_content.split('\n'))
-                            function_lengths.append(min(func_lines, 50))  # Cap at 50
-                            
-                            if func_lines > 100:
-                                long_functions.append({
-                                    "file": str(fp.relative_to(project_root)),
-                                    "function": match.group(1) if match.groups() else "unknown",
-                                    "lines": func_lines
-                                })
-                            
-                            # Estimate complexity (count branches)
-                            complexity = len(re.findall(r'\b(if|elif|else|for|while|and|or|try|except|case)\b', func_content))
-                            file_complexity += complexity
-                            
-                            # Check for deep nesting
-                            max_indent = 0
-                            for line in func_content.split('\n'):
-                                if line.strip():
-                                    indent = len(line) - len(line.lstrip())
-                                    max_indent = max(max_indent, indent)
-                            if max_indent > 16:  # 4+ levels of nesting
-                                code_smells["deep_nesting"] += 1
+                        # Use radon for Python files when available
+                        if fp.suffix == '.py' and HAS_RADON:
+                            try:
+                                # Use radon for production-quality cyclomatic complexity
+                                complexity_results = cc_visit(content)
+                                for result in complexity_results:
+                                    file_functions += 1
+                                    total_functions += 1
+                                    
+                                    # Get function metrics from radon
+                                    func_complexity = result.complexity
+                                    func_lines = result.endline - result.lineno
+                                    
+                                    file_complexity += func_complexity
+                                    function_lengths.append(min(func_lines, 50))
+                                    
+                                    # Count parameters from name field (contains signature)
+                                    param_count = len([p for p in result.name.split('(')[1].split(')')[0].split(',') if p.strip() and p.strip() != 'self']) if '(' in result.name else 0
+                                    param_counts.append(param_count)
+                                    if param_count > 5:
+                                        code_smells["long_parameter_lists"] += 1
+                                    
+                                    if func_lines > 100:
+                                        long_functions.append({
+                                            "file": str(fp.relative_to(project_root)),
+                                            "function": result.name.split('(')[0],
+                                            "lines": func_lines
+                                        })
+                                    
+                                    # High complexity threshold (radon uses McCabe)
+                                    if func_complexity > 10:
+                                        code_smells["deep_nesting"] += 1
+                                
+                                # Find classes using AST
+                                try:
+                                    tree = ast.parse(content)
+                                    file_classes = sum(1 for node in ast.walk(tree) if isinstance(node, ast.ClassDef))
+                                    total_classes += file_classes
+                                except:
+                                    pass
+                                    
+                            except Exception as e:
+                                logger.debug(f"Radon analysis failed for {fp}, falling back to regex: {e}")
+                                # Fallback to regex method below
+                                HAS_RADON_FOR_FILE = False
+                            else:
+                                HAS_RADON_FOR_FILE = True
+                        else:
+                            HAS_RADON_FOR_FILE = False
                         
-                        # Find classes
-                        class_pattern = r'class\s+(\w+)'
-                        file_classes = len(re.findall(class_pattern, content))
-                        total_classes += file_classes
+                        # Fallback regex method for non-Python or if radon fails
+                        if not HAS_RADON_FOR_FILE or fp.suffix != '.py':
+                            # Find functions (Python, JS, TS)
+                            function_pattern = r'(?:def|function|const\s+\w+\s*=\s*(?:async\s+)?\()\s+(\w+)\s*\('
+                            for match in re.finditer(function_pattern, content):
+                                file_functions += 1
+                                total_functions += 1
+                                
+                                # Get function body to analyze
+                                func_start = match.start()
+                                func_content = content[func_start:func_start + 2000]  # Sample
+                                
+                                # Count parameters
+                                param_match = re.search(r'\((.*?)\)', func_content)
+                                if param_match:
+                                    params = [p.strip() for p in param_match.group(1).split(',') if p.strip() and p.strip() != 'self']
+                                    param_count = len(params)
+                                    param_counts.append(param_count)
+                                    if param_count > 5:
+                                        code_smells["long_parameter_lists"] += 1
+                                
+                                # Estimate function length
+                                func_lines = len(func_content.split('\n'))
+                                function_lengths.append(min(func_lines, 50))
+                                
+                                if func_lines > 100:
+                                    long_functions.append({
+                                        "file": str(fp.relative_to(project_root)),
+                                        "function": match.group(1) if match.groups() else "unknown",
+                                        "lines": func_lines
+                                    })
+                                
+                                # Estimate complexity (count branches)
+                                complexity = len(re.findall(r'\b(if|elif|else|for|while|and|or|try|except|case)\b', func_content))
+                                file_complexity += complexity
+                                
+                                # Check for deep nesting
+                                max_indent = 0
+                                for line in func_content.split('\n'):
+                                    if line.strip():
+                                        indent = len(line) - len(line.lstrip())
+                                        max_indent = max(max_indent, indent)
+                                if max_indent > 16:  # 4+ levels of nesting
+                                    code_smells["deep_nesting"] += 1
+                            
+                            # Find classes
+                            class_pattern = r'class\s+(\w+)'
+                            file_classes = len(re.findall(class_pattern, content))
+                            total_classes += file_classes
                         
                         # Find magic numbers (numeric literals not 0, 1, -1)
                         magic_numbers = re.findall(r'\b(?<!\.)\d{2,}\b(?!\.)', content)
@@ -1346,17 +1519,43 @@ def get_code_metrics_summary(detailed: bool = False) -> str:
                     except Exception as e:
                         logger.debug(f"Error analyzing {fp}: {e}")
         
-        # Calculate maintainability index (simplified)
+        # Calculate maintainability index using radon when available
         # Based on Halstead Volume, Cyclomatic Complexity, Lines of Code
         # Formula: 171 - 5.2 * ln(Halstead Volume) - 0.23 * CC - 16.2 * ln(LOC)
-        # Simplified version using available metrics
-        avg_complexity = (sum(f["complexity"] for f in file_metrics) / len(file_metrics)) if file_metrics else 0
-        avg_file_size = total_lines / total_files if total_files > 0 else 0
-        
         import math
-        maintainability = max(0, min(100, 
-            171 - 0.23 * avg_complexity - 16.2 * math.log(max(1, avg_file_size))
-        ))
+        
+        if HAS_RADON and file_metrics:
+            # Use radon's production-quality MI calculation for Python files
+            mi_scores = []
+            for fm in file_metrics:
+                if fm["file"].endswith('.py'):
+                    try:
+                        fpath = project_root / fm["file"]
+                        with open(fpath, encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                        # mi_visit returns a float (maintainability index)
+                        mi_score = mi_visit(content, multi=False)
+                        if isinstance(mi_score, (int, float)) and mi_score > 0:
+                            mi_scores.append(mi_score)
+                    except:
+                        pass
+            
+            if mi_scores:
+                maintainability = sum(mi_scores) / len(mi_scores)
+            else:
+                # Fallback to simplified calculation
+                avg_complexity = (sum(f["complexity"] for f in file_metrics) / len(file_metrics)) if file_metrics else 0
+                avg_file_size = total_lines / total_files if total_files > 0 else 0
+                maintainability = max(0, min(100, 
+                    171 - 0.23 * avg_complexity - 16.2 * math.log(max(1, avg_file_size))
+                ))
+        else:
+            # Simplified version using available metrics
+            avg_complexity = (sum(f["complexity"] for f in file_metrics) / len(file_metrics)) if file_metrics else 0
+            avg_file_size = total_lines / total_files if total_files > 0 else 0
+            maintainability = max(0, min(100, 
+                171 - 0.23 * avg_complexity - 16.2 * math.log(max(1, avg_file_size))
+            ))
         
         # Build result
         result = [""]
@@ -1549,9 +1748,9 @@ def get_import_graph(include_external: bool = False) -> str:
                         
                         # Extract imports based on file type
                         if fp.suffix == '.py':
-                            # Python: from X import Y, import X
-                            for match in re.finditer(r'(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))', content):
-                                module = match.group(1) or match.group(2)
+                            # Python: Use AST for production-quality import extraction
+                            modules = parse_imports_ast(content)
+                            for module in modules:
                                 if module:
                                     # Check if internal or external
                                     potential_file = module.replace('.', os.sep) + '.py'
