@@ -1,0 +1,9 @@
+{
+  "mcp.servers": {
+    "codemind": {
+      "command": "D:/Projects/Python/CodeMind/.venv/Scripts/python.exe",
+      "args": ["D:/Projects/Python/CodeMind/codemind.py"],
+      "cwd": "D:/Projects/Python/CodeMind"
+    }
+  }
+}

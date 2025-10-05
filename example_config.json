@@ -1,0 +1,9 @@
+{
+  "project_root": "./",
+  "db_path": ".codemind/memory.db",
+  "watched_extensions": [".py", ".js", ".ts", ".jsx", ".tsx", ".vue", ".java", ".cs", ".cpp", ".c", ".h", ".go", ".rs"],
+  "scan_interval": 300,
+  "max_file_size_kb": 500,
+  "embedding_model": "all-MiniLM-L6-v2",
+  "max_files": 10000
+}
