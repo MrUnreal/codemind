@@ -1140,6 +1140,360 @@ def get_test_coverage(file_path: str) -> str:
     """
     return _get_test_coverage_impl(file_path)
 
+# ============================================================================
+# PHASE 5: ZERO-LLM STATIC ANALYSIS TOOLS
+# ============================================================================
+
+@mcp.tool()
+def get_code_metrics_summary(detailed: bool = False) -> str:
+    """
+    Comprehensive static analysis metrics across entire project.
+    
+    Provides objective code quality dashboard with:
+    - Project statistics (files, lines, comments)
+    - Complexity metrics (cyclomatic complexity estimates)
+    - Function statistics (count, avg length, long functions)
+    - Documentation coverage (docstrings, comments)
+    - Code smells (magic numbers, long params, deep nesting)
+    - Maintainability index (0-100 score)
+    
+    Args:
+        detailed: Show detailed file-by-file breakdown (default: False)
+    
+    Use this for:
+    - Project health assessment
+    - Technical debt identification
+    - Code review prioritization
+    - Quality gate checks
+    - Onboarding (understand codebase scope)
+    
+    Returns comprehensive metrics with actionable recommendations.
+    Zero LLM calls - pure static analysis.
+    """
+    try:
+        project_root = Path(CONFIG["project_root"]).resolve()
+        
+        # Initialize counters
+        total_files = 0
+        total_lines = 0
+        code_lines = 0
+        comment_lines = 0
+        blank_lines = 0
+        
+        total_functions = 0
+        total_classes = 0
+        function_lengths = []
+        param_counts = []
+        
+        files_with_docstrings = 0
+        high_complexity_files = []
+        long_functions = []
+        code_smells = {
+            "magic_numbers": 0,
+            "long_parameter_lists": 0,
+            "deep_nesting": 0,
+            "dead_imports": 0,
+            "long_lines": 0
+        }
+        
+        file_metrics = []
+        
+        # Scan all files
+        for ext in CONFIG["watched_extensions"]:
+            for fp in project_root.rglob(f"*{ext}"):
+                if fp.is_file() and not any(p.startswith('.') for p in fp.parts[:-1]):
+                    try:
+                        if fp.stat().st_size // 1024 > CONFIG["max_file_size_kb"]:
+                            continue
+                        
+                        with open(fp, encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                            lines = content.split('\n')
+                        
+                        total_files += 1
+                        file_total_lines = len(lines)
+                        total_lines += file_total_lines
+                        
+                        # Classify lines
+                        file_code_lines = 0
+                        file_comment_lines = 0
+                        file_blank_lines = 0
+                        file_has_docstring = False
+                        
+                        in_multiline_comment = False
+                        for line in lines:
+                            stripped = line.strip()
+                            
+                            if not stripped:
+                                file_blank_lines += 1
+                                blank_lines += 1
+                            elif stripped.startswith('"""') or stripped.startswith("'''"):
+                                file_comment_lines += 1
+                                comment_lines += 1
+                                file_has_docstring = True
+                                if stripped.count('"""') == 1 or stripped.count("'''") == 1:
+                                    in_multiline_comment = not in_multiline_comment
+                            elif in_multiline_comment:
+                                file_comment_lines += 1
+                                comment_lines += 1
+                            elif stripped.startswith('#'):
+                                file_comment_lines += 1
+                                comment_lines += 1
+                            elif stripped.startswith('//') or stripped.startswith('/*'):
+                                file_comment_lines += 1
+                                comment_lines += 1
+                            else:
+                                file_code_lines += 1
+                                code_lines += 1
+                                
+                                # Check for long lines
+                                if len(line) > 120:
+                                    code_smells["long_lines"] += 1
+                        
+                        if file_has_docstring:
+                            files_with_docstrings += 1
+                        
+                        # Extract functions and complexity
+                        file_functions = 0
+                        file_classes = 0
+                        file_complexity = 0
+                        
+                        # Find functions (Python, JS, TS)
+                        function_pattern = r'(?:def|function|const\s+\w+\s*=\s*(?:async\s+)?\()\s+(\w+)\s*\('
+                        for match in re.finditer(function_pattern, content):
+                            file_functions += 1
+                            total_functions += 1
+                            
+                            # Get function body to analyze
+                            func_start = match.start()
+                            func_content = content[func_start:func_start + 2000]  # Sample
+                            
+                            # Count parameters
+                            param_match = re.search(r'\((.*?)\)', func_content)
+                            if param_match:
+                                params = [p.strip() for p in param_match.group(1).split(',') if p.strip() and p.strip() != 'self']
+                                param_count = len(params)
+                                param_counts.append(param_count)
+                                if param_count > 5:
+                                    code_smells["long_parameter_lists"] += 1
+                            
+                            # Estimate function length (lines until next def/class)
+                            func_lines = len(func_content.split('\n'))
+                            function_lengths.append(min(func_lines, 50))  # Cap at 50
+                            
+                            if func_lines > 100:
+                                long_functions.append({
+                                    "file": str(fp.relative_to(project_root)),
+                                    "function": match.group(1) if match.groups() else "unknown",
+                                    "lines": func_lines
+                                })
+                            
+                            # Estimate complexity (count branches)
+                            complexity = len(re.findall(r'\b(if|elif|else|for|while|and|or|try|except|case)\b', func_content))
+                            file_complexity += complexity
+                            
+                            # Check for deep nesting
+                            max_indent = 0
+                            for line in func_content.split('\n'):
+                                if line.strip():
+                                    indent = len(line) - len(line.lstrip())
+                                    max_indent = max(max_indent, indent)
+                            if max_indent > 16:  # 4+ levels of nesting
+                                code_smells["deep_nesting"] += 1
+                        
+                        # Find classes
+                        class_pattern = r'class\s+(\w+)'
+                        file_classes = len(re.findall(class_pattern, content))
+                        total_classes += file_classes
+                        
+                        # Find magic numbers (numeric literals not 0, 1, -1)
+                        magic_numbers = re.findall(r'\b(?<!\.)\d{2,}\b(?!\.)', content)
+                        code_smells["magic_numbers"] += len([n for n in magic_numbers if n not in ['0', '1', '2', '10', '100']])
+                        
+                        # Find dead imports (imported but not used)
+                        if fp.suffix == '.py':
+                            import_pattern = r'(?:from\s+[\w.]+\s+)?import\s+([\w\s,]+)'
+                            for match in re.finditer(import_pattern, content):
+                                imports = [i.strip() for i in match.group(1).split(',')]
+                                for imp in imports:
+                                    imp_name = imp.split()[0] if imp else ''
+                                    if imp_name and content.count(imp_name) == 1:  # Only appears in import
+                                        code_smells["dead_imports"] += 1
+                        
+                        # Calculate file complexity score
+                        if file_functions > 0:
+                            avg_complexity = file_complexity / file_functions
+                        else:
+                            avg_complexity = 0
+                        
+                        if avg_complexity > 10 or file_complexity > 30:
+                            high_complexity_files.append({
+                                "file": str(fp.relative_to(project_root)),
+                                "complexity": file_complexity,
+                                "functions": file_functions
+                            })
+                        
+                        file_metrics.append({
+                            "file": str(fp.relative_to(project_root)),
+                            "lines": file_total_lines,
+                            "code": file_code_lines,
+                            "comments": file_comment_lines,
+                            "functions": file_functions,
+                            "classes": file_classes,
+                            "complexity": file_complexity
+                        })
+                        
+                    except Exception as e:
+                        logger.debug(f"Error analyzing {fp}: {e}")
+        
+        # Calculate maintainability index (simplified)
+        # Based on Halstead Volume, Cyclomatic Complexity, Lines of Code
+        # Formula: 171 - 5.2 * ln(Halstead Volume) - 0.23 * CC - 16.2 * ln(LOC)
+        # Simplified version using available metrics
+        avg_complexity = (sum(f["complexity"] for f in file_metrics) / len(file_metrics)) if file_metrics else 0
+        avg_file_size = total_lines / total_files if total_files > 0 else 0
+        
+        import math
+        maintainability = max(0, min(100, 
+            171 - 0.23 * avg_complexity - 16.2 * math.log(max(1, avg_file_size))
+        ))
+        
+        # Build result
+        result = [""]
+        result.append("=" * 70)
+        result.append("📊 CODE METRICS SUMMARY")
+        result.append("=" * 70)
+        result.append("")
+        
+        # Project Statistics
+        result.append("📁 **PROJECT STATISTICS**")
+        result.append(f"  Total Files:    {total_files:,}")
+        result.append(f"  Total Lines:    {total_lines:,}")
+        result.append(f"  Code Lines:     {code_lines:,} ({100*code_lines/max(1,total_lines):.1f}%)")
+        result.append(f"  Comment Lines:  {comment_lines:,} ({100*comment_lines/max(1,total_lines):.1f}%)")
+        result.append(f"  Blank Lines:    {blank_lines:,} ({100*blank_lines/max(1,total_lines):.1f}%)")
+        result.append("")
+        
+        # Complexity
+        result.append("🔥 **COMPLEXITY METRICS**")
+        result.append(f"  Average per File: {avg_complexity:.1f}")
+        if file_metrics:
+            complexities = [f["complexity"] for f in file_metrics]
+            result.append(f"  Median:           {sorted(complexities)[len(complexities)//2]}")
+            result.append(f"  Max:              {max(complexities)}")
+        
+        if high_complexity_files:
+            result.append(f"\n  ⚠️  High Complexity Files ({len(high_complexity_files)}):")
+            for fc in sorted(high_complexity_files, key=lambda x: x["complexity"], reverse=True)[:5]:
+                result.append(f"    • {fc['file']}: complexity={fc['complexity']}, functions={fc['functions']}")
+            if len(high_complexity_files) > 5:
+                result.append(f"    ... and {len(high_complexity_files) - 5} more")
+        result.append("")
+        
+        # Function Statistics
+        result.append("⚙️  **FUNCTION STATISTICS**")
+        result.append(f"  Total Functions: {total_functions:,}")
+        result.append(f"  Total Classes:   {total_classes:,}")
+        if function_lengths:
+            avg_length = sum(function_lengths) / len(function_lengths)
+            result.append(f"  Avg Length:      {avg_length:.1f} lines")
+            result.append(f"  Median Length:   {sorted(function_lengths)[len(function_lengths)//2]} lines")
+        
+        if long_functions:
+            result.append(f"\n  📏 Long Functions ({len(long_functions)}):")
+            for lf in sorted(long_functions, key=lambda x: x["lines"], reverse=True)[:5]:
+                result.append(f"    • {lf['file']}::{lf['function']} ({lf['lines']} lines)")
+            if len(long_functions) > 5:
+                result.append(f"    ... and {len(long_functions) - 5} more")
+        result.append("")
+        
+        # Documentation
+        result.append("📚 **DOCUMENTATION**")
+        doc_coverage = (100 * files_with_docstrings / max(1, total_files))
+        result.append(f"  Files with Docstrings: {files_with_docstrings}/{total_files} ({doc_coverage:.1f}%)")
+        result.append(f"  Comment Ratio:         {100*comment_lines/max(1,code_lines):.1f}%")
+        
+        if doc_coverage < 60:
+            result.append(f"  ⚠️  Low documentation coverage")
+        elif doc_coverage >= 80:
+            result.append(f"  ✅ Good documentation coverage")
+        result.append("")
+        
+        # Code Smells
+        result.append("🔍 **CODE SMELLS**")
+        result.append(f"  Magic Numbers:        {code_smells['magic_numbers']}")
+        result.append(f"  Long Parameter Lists: {code_smells['long_parameter_lists']} (>5 params)")
+        result.append(f"  Deep Nesting:         {code_smells['deep_nesting']} (>4 levels)")
+        result.append(f"  Dead Imports:         {code_smells['dead_imports']}")
+        result.append(f"  Long Lines:           {code_smells['long_lines']} (>120 chars)")
+        
+        total_smells = sum(code_smells.values())
+        if total_smells == 0:
+            result.append(f"  ✅ No major code smells detected!")
+        elif total_smells < 50:
+            result.append(f"  ✓  Few code smells - good quality")
+        elif total_smells < 200:
+            result.append(f"  ⚠️  Moderate code smells - review recommended")
+        else:
+            result.append(f"  ❌ Many code smells - refactoring needed")
+        result.append("")
+        
+        # Maintainability Index
+        result.append("💯 **MAINTAINABILITY INDEX**")
+        result.append(f"  Score: {maintainability:.1f}/100")
+        if maintainability >= 80:
+            result.append(f"  ✅ Excellent - Easy to maintain")
+        elif maintainability >= 60:
+            result.append(f"  ✓  Good - Reasonably maintainable")
+        elif maintainability >= 40:
+            result.append(f"  ⚠️  Fair - Maintenance challenges ahead")
+        else:
+            result.append(f"  ❌ Poor - Significant refactoring recommended")
+        result.append("")
+        
+        # Recommendations
+        result.append("💡 **RECOMMENDATIONS**")
+        recommendations = []
+        
+        if avg_complexity > 15:
+            recommendations.append(f"  • Reduce complexity: Average {avg_complexity:.1f} is high (target: <10)")
+        if long_functions:
+            recommendations.append(f"  • Refactor {len(long_functions)} long functions (target: <50 lines)")
+        if doc_coverage < 70:
+            recommendations.append(f"  • Improve documentation: {doc_coverage:.0f}% coverage (target: >70%)")
+        if code_smells["magic_numbers"] > 50:
+            recommendations.append(f"  • Replace {code_smells['magic_numbers']} magic numbers with named constants")
+        if code_smells["dead_imports"] > 20:
+            recommendations.append(f"  • Remove {code_smells['dead_imports']} unused imports")
+        if code_smells["long_parameter_lists"] > 10:
+            recommendations.append(f"  • Refactor {code_smells['long_parameter_lists']} functions with >5 parameters")
+        
+        if recommendations:
+            result.extend(recommendations)
+        else:
+            result.append(f"  ✅ Code quality is excellent - keep it up!")
+        
+        result.append("")
+        result.append("=" * 70)
+        
+        # Detailed breakdown
+        if detailed and file_metrics:
+            result.append("")
+            result.append("📋 **DETAILED FILE BREAKDOWN**")
+            result.append("")
+            result.append(f"{'File':<50} {'Lines':>8} {'Code':>8} {'Funcs':>6} {'Cmplx':>6}")
+            result.append("-" * 80)
+            for fm in sorted(file_metrics, key=lambda x: x["complexity"], reverse=True)[:20]:
+                result.append(f"{fm['file']:<50} {fm['lines']:>8} {fm['code']:>8} {fm['functions']:>6} {fm['complexity']:>6}")
+            if len(file_metrics) > 20:
+                result.append(f"... and {len(file_metrics) - 20} more files")
+        
+        return "\n".join(result)
+        
+    except Exception as e:
+        logger.error(f"Error in get_code_metrics_summary: {e}", exc_info=True)
+        return f"❌ Error analyzing code metrics: {str(e)}"
+
 def init_server():
     """Quick initialization - defer heavy work"""
     global db_conn, embedding_model
