@@ -1787,6 +1787,373 @@ def get_import_graph(include_external: bool = False) -> str:
         logger.error(f"Error in get_import_graph: {e}", exc_info=True)
         return f"❌ Error analyzing import graph: {str(e)}"
 
+@mcp.tool()
+def find_configuration_inconsistencies(include_examples: bool = True) -> str:
+    """
+    Compare configuration across different environments and files.
+    
+    Analyzes configuration files to identify:
+    - Missing variables across environments
+    - Hardcoded secrets (API_KEY, SECRET, PASSWORD patterns)
+    - Security risks (DEBUG=true in production)
+    - Inconsistent values between environments
+    - Configuration files inventory
+    - Environment variable usage in code
+    
+    Args:
+        include_examples: Show example values (default: True, masked for secrets)
+    
+    Use this for:
+    - Deployment safety (prevent missing config crashes)
+    - Security audits (find hardcoded secrets)
+    - Environment consistency checks
+    - "Works in dev, breaks in prod" prevention
+    - Configuration documentation
+    
+    Returns comprehensive configuration analysis with security recommendations.
+    Zero LLM calls - pure file parsing and comparison.
+    """
+    try:
+        project_root = Path(CONFIG["project_root"]).resolve()
+        
+        # Configuration file patterns
+        config_patterns = {
+            'json': ['*.json', 'config/*.json', '.vscode/*.json'],
+            'yaml': ['*.yml', '*.yaml', 'config/*.yml', 'config/*.yaml'],
+            'env': ['.env', '.env.*', '*.env'],
+            'ini': ['*.ini', '*.cfg', 'setup.cfg'],
+            'py': ['config.py', 'settings.py', '**/config.py', '**/settings.py']
+        }
+        
+        # Find all config files
+        config_files = {}
+        for file_type, patterns in config_patterns.items():
+            config_files[file_type] = []
+            for pattern in patterns:
+                for fp in project_root.glob(pattern):
+                    if fp.is_file() and not any(p.startswith('.git') for p in fp.parts):
+                        try:
+                            config_files[file_type].append(str(fp.relative_to(project_root)))
+                        except ValueError:
+                            pass
+        
+        # Parse configuration values
+        all_configs = {}  # {filename: {key: value}}
+        secret_patterns = re.compile(r'(api[_-]?key|secret|password|token|auth|credential|private[_-]?key)', re.IGNORECASE)
+        
+        for file_type, files in config_files.items():
+            for config_file in files:
+                full_path = project_root / config_file
+                try:
+                    with open(full_path, encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                    
+                    config_data = {}
+                    
+                    if file_type == 'json':
+                        try:
+                            data = json.loads(content)
+                            if isinstance(data, dict):
+                                config_data = {k: str(v) for k, v in data.items() if not isinstance(v, (dict, list))}
+                        except json.JSONDecodeError:
+                            pass
+                    
+                    elif file_type in ['yaml', 'yml']:
+                        # Simple YAML parsing (key: value)
+                        for line in content.split('\n'):
+                            match = re.match(r'^\s*([a-zA-Z_][\w_]*)\s*:\s*(.+?)(?:\s*#.*)?$', line)
+                            if match:
+                                key, value = match.groups()
+                                config_data[key.strip()] = value.strip().strip('"\'')
+                    
+                    elif file_type == 'env':
+                        # ENV file parsing (KEY=value)
+                        for line in content.split('\n'):
+                            line = line.strip()
+                            if line and not line.startswith('#'):
+                                match = re.match(r'^([A-Z_][A-Z0-9_]*)\s*=\s*(.*)$', line)
+                                if match:
+                                    key, value = match.groups()
+                                    config_data[key] = value.strip().strip('"\'')
+                    
+                    elif file_type == 'ini':
+                        # INI file parsing (key = value)
+                        current_section = 'default'
+                        for line in content.split('\n'):
+                            line = line.strip()
+                            if line.startswith('[') and line.endswith(']'):
+                                current_section = line[1:-1]
+                            elif '=' in line and not line.startswith('#'):
+                                key, value = line.split('=', 1)
+                                full_key = f"{current_section}.{key.strip()}" if current_section != 'default' else key.strip()
+                                config_data[full_key] = value.strip().strip('"\'')
+                    
+                    elif file_type == 'py':
+                        # Python config parsing (VARIABLE = value)
+                        for line in content.split('\n'):
+                            match = re.match(r'^([A-Z_][A-Z0-9_]*)\s*=\s*(.+?)(?:\s*#.*)?$', line)
+                            if match:
+                                key, value = match.groups()
+                                config_data[key] = value.strip().strip('"\'')
+                    
+                    if config_data:
+                        all_configs[config_file] = config_data
+                
+                except Exception as e:
+                    logger.debug(f"Error parsing {config_file}: {e}")
+        
+        # Detect environment types from filenames
+        env_mapping = {}
+        for filename in all_configs.keys():
+            if 'dev' in filename.lower() or 'local' in filename.lower():
+                env_mapping[filename] = 'development'
+            elif 'stag' in filename.lower():
+                env_mapping[filename] = 'staging'
+            elif 'prod' in filename.lower():
+                env_mapping[filename] = 'production'
+            elif 'test' in filename.lower():
+                env_mapping[filename] = 'testing'
+            else:
+                env_mapping[filename] = 'unknown'
+        
+        # Collect all unique keys
+        all_keys = set()
+        for config_data in all_configs.values():
+            all_keys.update(config_data.keys())
+        
+        # Find inconsistencies
+        missing_vars = {}  # {env: [keys]}
+        hardcoded_secrets = []
+        security_risks = []
+        variable_comparison = {}  # {key: {file: value}}
+        
+        for key in all_keys:
+            variable_comparison[key] = {}
+            for filename, config_data in all_configs.items():
+                if key in config_data:
+                    value = config_data[key]
+                    variable_comparison[key][filename] = value
+                    
+                    # Check for hardcoded secrets
+                    if secret_patterns.search(key) and value and not value.startswith('$') and not value.upper().startswith('ENV:'):
+                        if len(value) > 5 and not value.lower() in ['none', 'null', 'false', 'true']:
+                            masked_value = value[:3] + '***' if len(value) > 6 else '***'
+                            hardcoded_secrets.append({
+                                'file': filename,
+                                'key': key,
+                                'value': masked_value,
+                                'risk': 'HIGH' if 'prod' in filename.lower() else 'MEDIUM'
+                            })
+                    
+                    # Check for security risks
+                    if key.upper() == 'DEBUG' and value.lower() in ['true', '1', 'yes']:
+                        env_type = env_mapping.get(filename, 'unknown')
+                        if env_type in ['production', 'staging']:
+                            security_risks.append({
+                                'file': filename,
+                                'issue': f'DEBUG=true in {env_type}',
+                                'risk': 'HIGH' if env_type == 'production' else 'MEDIUM',
+                                'recommendation': 'Set DEBUG=false in production/staging'
+                            })
+                else:
+                    # Missing variable
+                    env_type = env_mapping.get(filename, 'unknown')
+                    if env_type not in missing_vars:
+                        missing_vars[env_type] = []
+                    if key not in missing_vars[env_type]:
+                        missing_vars[env_type].append(key)
+        
+        # Scan code for environment variable usage
+        env_var_usage = {}  # {VAR_NAME: [files_using_it]}
+        for ext in CONFIG["watched_extensions"]:
+            for fp in project_root.rglob(f"*{ext}"):
+                if fp.is_file() and not any(p.startswith('.') for p in fp.parts[:-1]):
+                    try:
+                        if fp.stat().st_size // 1024 > CONFIG["max_file_size_kb"]:
+                            continue
+                        
+                        with open(fp, encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                        
+                        # Find environment variable access patterns
+                        for match in re.finditer(r'(?:os\.environ|process\.env|ENV)\[?["\']([A-Z_][A-Z0-9_]*)["\']?\]?', content):
+                            var_name = match.group(1)
+                            if var_name not in env_var_usage:
+                                env_var_usage[var_name] = []
+                            file_rel = str(fp.relative_to(project_root))
+                            if file_rel not in env_var_usage[var_name]:
+                                env_var_usage[var_name].append(file_rel)
+                    
+                    except Exception as e:
+                        logger.debug(f"Error scanning {fp}: {e}")
+        
+        # Build result
+        result = [""]
+        result.append("=" * 70)
+        result.append("🔧 CONFIGURATION ANALYSIS")
+        result.append("=" * 70)
+        result.append("")
+        
+        # Overview
+        result.append("📁 **CONFIGURATION FILES**")
+        total_files = sum(len(files) for files in config_files.values())
+        result.append(f"  Total Files: {total_files}")
+        for file_type, files in config_files.items():
+            if files:
+                result.append(f"  {file_type.upper()}: {len(files)} files")
+                for f in files[:3]:
+                    result.append(f"    • {f}")
+                if len(files) > 3:
+                    result.append(f"    ... and {len(files) - 3} more")
+        result.append("")
+        
+        # Environment mapping
+        result.append("🌍 **ENVIRONMENTS DETECTED**")
+        env_counts = {}
+        for env in env_mapping.values():
+            env_counts[env] = env_counts.get(env, 0) + 1
+        for env, count in sorted(env_counts.items()):
+            result.append(f"  {env.title()}: {count} config files")
+        result.append("")
+        
+        # Security Risks
+        result.append("🚨 **SECURITY RISKS**")
+        if security_risks:
+            result.append(f"  Found: {len(security_risks)} issues")
+            result.append("")
+            for risk in security_risks:
+                result.append(f"  ⚠️  {risk['file']}")
+                result.append(f"    Issue: {risk['issue']}")
+                result.append(f"    Risk: {risk['risk']}")
+                result.append(f"    Action: {risk['recommendation']}")
+                result.append("")
+        else:
+            result.append(f"  ✅ No security risks detected")
+        result.append("")
+        
+        # Hardcoded Secrets
+        result.append("🔐 **HARDCODED SECRETS**")
+        if hardcoded_secrets:
+            result.append(f"  Found: {len(hardcoded_secrets)} potential secrets")
+            result.append("")
+            for secret in hardcoded_secrets[:10]:
+                result.append(f"  {secret['risk']} RISK: {secret['file']}")
+                result.append(f"    Key: {secret['key']}")
+                if include_examples:
+                    result.append(f"    Value: {secret['value']}")
+                result.append(f"    Action: Move to environment variable")
+                result.append("")
+            if len(hardcoded_secrets) > 10:
+                result.append(f"  ... and {len(hardcoded_secrets) - 10} more")
+            result.append("")
+            result.append(f"  💡 Best Practice:")
+            result.append(f"    • Store secrets in .env files (not in git)")
+            result.append(f"    • Use environment variables")
+            result.append(f"    • Add .env to .gitignore")
+        else:
+            result.append(f"  ✅ No hardcoded secrets detected")
+        result.append("")
+        
+        # Missing Variables
+        result.append("❓ **MISSING VARIABLES**")
+        if missing_vars:
+            for env, keys in sorted(missing_vars.items()):
+                if keys:
+                    result.append(f"  {env.title()}: {len(keys)} missing")
+                    for key in keys[:5]:
+                        result.append(f"    • {key}")
+                    if len(keys) > 5:
+                        result.append(f"    ... and {len(keys) - 5} more")
+                    result.append("")
+        else:
+            result.append(f"  ✅ All variables present in all environments")
+        result.append("")
+        
+        # Variable Comparison
+        if include_examples and variable_comparison:
+            result.append("📊 **VARIABLE COMPARISON** (Sample)")
+            inconsistent = []
+            for key, file_values in variable_comparison.items():
+                if len(file_values) > 1:
+                    values = set(file_values.values())
+                    if len(values) > 1:  # Inconsistent values
+                        inconsistent.append((key, file_values))
+            
+            if inconsistent:
+                result.append(f"  Inconsistent: {len(inconsistent)} variables")
+                result.append("")
+                for key, file_values in inconsistent[:5]:
+                    result.append(f"  Variable: {key}")
+                    for file, value in file_values.items():
+                        env = env_mapping.get(file, 'unknown')
+                        # Mask secrets
+                        if secret_patterns.search(key) and len(value) > 6:
+                            value = value[:3] + '***'
+                        result.append(f"    {env:12} ({file}): {value}")
+                    result.append("")
+                if len(inconsistent) > 5:
+                    result.append(f"  ... and {len(inconsistent) - 5} more")
+            else:
+                result.append(f"  ✅ All variables have consistent values")
+            result.append("")
+        
+        # Environment Variable Usage
+        result.append("💻 **ENV VAR USAGE IN CODE**")
+        if env_var_usage:
+            result.append(f"  {len(env_var_usage)} environment variables referenced")
+            result.append("")
+            for var_name, files in sorted(env_var_usage.items())[:10]:
+                result.append(f"  {var_name}")
+                result.append(f"    Used in: {', '.join(files[:3])}")
+                if len(files) > 3:
+                    result.append(f"    ... and {len(files) - 3} more")
+                # Check if defined in config
+                defined = any(var_name in config_data for config_data in all_configs.values())
+                if not defined:
+                    result.append(f"    ⚠️  Not found in any config file!")
+                result.append("")
+            if len(env_var_usage) > 10:
+                result.append(f"  ... and {len(env_var_usage) - 10} more")
+        else:
+            result.append(f"  No environment variable usage detected in code")
+        result.append("")
+        
+        # Recommendations
+        result.append("💡 **RECOMMENDATIONS**")
+        recommendations = []
+        
+        if security_risks:
+            recommendations.append(f"  • Fix {len(security_risks)} security risks (DEBUG settings)")
+        if hardcoded_secrets:
+            recommendations.append(f"  • Move {len(hardcoded_secrets)} secrets to environment variables")
+        if any(missing_vars.values()):
+            total_missing = sum(len(keys) for keys in missing_vars.values())
+            recommendations.append(f"  • Define {total_missing} missing variables across environments")
+        
+        # Check for .env in .gitignore
+        gitignore_path = project_root / '.gitignore'
+        if gitignore_path.exists():
+            with open(gitignore_path) as f:
+                gitignore_content = f.read()
+            if '.env' not in gitignore_content:
+                recommendations.append(f"  • Add .env to .gitignore (prevent secret leaks)")
+        else:
+            recommendations.append(f"  • Create .gitignore and add .env")
+        
+        if not recommendations:
+            result.append(f"  ✅ Configuration is well-managed!")
+        else:
+            result.extend(recommendations)
+        
+        result.append("")
+        result.append("=" * 70)
+        
+        return "\n".join(result)
+        
+    except Exception as e:
+        logger.error(f"Error in find_configuration_inconsistencies: {e}", exc_info=True)
+        return f"❌ Error analyzing configuration: {str(e)}"
+
 def init_server():
     """Quick initialization - defer heavy work"""
     global db_conn, embedding_model
