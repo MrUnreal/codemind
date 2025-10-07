@@ -1,200 +1,101 @@
-# CodeMind 🧠# CodeMind - Multi-Workspace MCP Memory Server
+# CodeMind - Multi-Workspace MCP Memory Server
 
+**Tagline:** *Give Copilot a memory across all your projects*
 
+## Overview
 
-> **Intelligent code memory for GitHub Copilot via MCP****Tagline:** *Give Copilot a memory across all your projects*
+CodeMind is a **workspace-aware** Model Context Protocol (MCP) server that gives GitHub Copilot queryable memory about your projects. It helps prevent Copilot from creating duplicate files, forgetting architectural decisions, and suggesting rewrites instead of modifications.
 
+### ✨ What's New in v2.0
 
-
-CodeMind gives GitHub Copilot deep understanding of your codebase through 20 specialized tools for code search, analysis, and refactoring safety.## Overview
-
-
-
-## 🚀 Quick StartCodeMind is a **workspace-aware** Model Context Protocol (MCP) server that gives GitHub Copilot queryable memory about your projects. It helps prevent Copilot from creating duplicate files, forgetting architectural decisions, and suggesting rewrites instead of modifications.
-
-
-
-```bash### ✨ What's New in v2.0
-
-# Install
-
-pip install -r requirements.txt- **🎯 Multi-Workspace Support**: Work with multiple projects simultaneously - each with its own memory
-
+- **🎯 Multi-Workspace Support**: Work with multiple projects simultaneously - each with its own memory
 - **📦 Modular Architecture**: Clean package structure with separate modules for better maintainability
+- **🔧 Workspace Parameter**: All tools accept `workspace_root` parameter for explicit project targeting
+- **🏗️ Production-Quality**: AST-based parsing and radon metrics for accurate analysis
 
-# Configure VS Code MCP- **🔧 Workspace Parameter**: All tools accept `workspace_root` parameter for explicit project targeting
+### The Problem
+- 🔄 Copilot creates duplicate files when functionality already exists
+- 🧠 Forgets architectural decisions made minutes ago
+- ❓ Doesn't know what files are for or how they relate
+- 🔁 Suggests complete rewrites instead of targeted modifications
 
-# Add to .vscode/settings.json:- **🏗️ Production-Quality**: AST-based parsing and radon metrics for accurate analysis
-
-{
-
-  "mcp.servers": {### The Problem
-
-    "codemind": {- 🔄 Copilot creates duplicate files when functionality already exists
-
-      "command": "python",- 🧠 Forgets architectural decisions made minutes ago
-
-      "args": ["d:/Projects/Python/CodeMind/codemind.py"]- ❓ Doesn't know what files are for or how they relate
-
-    }- 🔁 Suggests complete rewrites instead of targeted modifications
-
-  }
-
-}### The Solution
-
+### The Solution
 - 🔍 **Semantic Search**: Find existing functionality before creating new files
-
-# Restart GitHub Copilot- 📝 **Project Memory**: Track file purposes, changes, and architectural decisions
-
-```- ⚡ **Real-time Indexing**: Auto-index changes as you work
-
+- 📝 **Project Memory**: Track file purposes, changes, and architectural decisions
+- ⚡ **Real-time Indexing**: Auto-index changes as you work
 - 🎯 **Context-Aware**: Help Copilot understand your project structure
-
-## ✨ Key Features
 
 ## Features
 
-- **🔍 Smart Search**: Semantic code search with embeddings
+### 🛠️ MCP Tools for Copilot (20 Total)
 
-- **📊 Code Analysis**: Metrics, complexity, configuration checks### 🛠️ MCP Tools for Copilot (20 Total)
-
-- **🔗 Dependencies**: Import graphs, call trees, usage tracking
-
-- **⚠️ Refactoring Safety**: Breaking change detection, impact analysis#### Core Discovery Tools (5)
-
-- **📝 Context Awareness**: File history, recent changes, decisions1. **`search_existing_code`** - Semantic search for existing functionality
-
-- **🎯 Multi-Workspace**: Isolated databases per project2. **`check_functionality_exists`** - Quick yes/no check if functionality exists
-
+#### Core Discovery Tools (5)
+1. **`search_existing_code`** - Semantic search for existing functionality
+2. **`check_functionality_exists`** - Quick yes/no check if functionality exists
 3. **`search_by_export`** - Find where functions/classes are defined
-
-## 🛠️ 20 MCP Tools4. **`get_file_context`** - Understand what a file does and why it exists
-
+4. **`get_file_context`** - Understand what a file does and why it exists
 5. **`query_recent_changes`** - See what's been modified recently
 
-| Category | Tools |
+#### Enhanced Discovery Tools (4)
+6. **`get_similar_files`** - Find files with similar patterns/structure
+7. **`find_dependencies`** - Bidirectional dependency analysis
+8. **`list_all_decisions`** - Query decision history with keyword filtering
+9. **`record_decision`** - Store architectural decisions and rationale
 
-|----------|-------|#### Enhanced Discovery Tools (4)
-
-| **Search & Discovery** | `search_existing_code`, `check_functionality_exists`, `search_by_export`, `get_similar_files` |6. **`get_similar_files`** - Find files with similar patterns/structure
-
-| **Context & History** | `get_file_context`, `query_recent_changes`, `record_decision`, `list_all_decisions` |7. **`find_dependencies`** - Bidirectional dependency analysis
-
-| **Dependencies** | `find_dependencies`, `get_import_graph`, `get_call_tree` |8. **`list_all_decisions`** - Query decision history with keyword filtering
-
-| **Code Analysis** | `get_code_metrics_summary`, `find_configuration_inconsistencies` |9. **`record_decision`** - Store architectural decisions and rationale
-
-| **Refactoring** | `check_breaking_changes`, `find_usage_examples`, `get_test_coverage` |
-
-| **Management** | `force_reindex`, `index_file`, `find_todo_and_fixme`, `get_file_history_summary` |#### Indexing & Analysis Tools (3)
-
+#### Indexing & Analysis Tools (3)
 10. **`force_reindex`** - Manually trigger full project re-scan
-
-## 📚 Documentation11. **`index_file`** - Index specific file immediately
-
+11. **`index_file`** - Index specific file immediately
 12. **`get_call_tree`** - Function call graph (callers + callees)
 
-- **[Full Documentation](docs/DOCS.md)** - Complete API reference
-
-- **[Multi-Workspace Guide](docs/MULTI_WORKSPACE_GUIDE.md)** - Managing multiple projects#### Refactoring Safety Tools (5)
-
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Common use cases13. **`check_breaking_changes`** - Identify impacted code before refactoring
-
-- **[Testing Summary](docs/TESTING_SUMMARY.md)** - Test coverage details14. **`find_usage_examples`** - Real-world usage patterns
-
+#### Refactoring Safety Tools (5)
+13. **`check_breaking_changes`** - Identify impacted code before refactoring
+14. **`find_usage_examples`** - Real-world usage patterns
 15. **`find_todo_and_fixme`** - Track technical debt (TODO/FIXME/HACK)
-
-## 🏗️ Architecture16. **`get_file_history_summary`** - Git commit history analysis
-
+16. **`get_file_history_summary`** - Git commit history analysis
 17. **`get_test_coverage`** - Estimate test coverage
 
+#### Zero-LLM Static Analysis Tools (3) ⭐ NEW
+18. **`get_code_metrics_summary`** - Comprehensive code metrics (LOC, complexity, maintainability)
+19. **`get_import_graph`** - Dependency visualization with circular detection
+20. **`find_configuration_inconsistencies`** - Config analysis and secret detection
+
+### 🚀 Auto-Indexing System
+
+- **File Watcher**: Automatically detects file changes
+- **Smart Analysis**: Extracts file purpose from docstrings and comments
+- **Semantic Embeddings**: Uses sentence-transformers for semantic search
+- **SQLite Storage**: Lightweight, zero-maintenance database
+
+### ⚙️ Configuration
+
+- **Zero Config**: Works out of the box for most projects
+- **Customizable**: Support for multiple programming languages
+- **Performance Tuned**: Fast queries (<500ms) and efficient indexing
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.10 or higher
+- GitHub Copilot or compatible MCP client
+
+### Installation
+
+1. **Clone the repository**:
+```bash
+git clone https://github.com/yourusername/codemind.git
+cd codemind
 ```
-
-CodeMind/#### Zero-LLM Static Analysis Tools (3) ⭐ NEW
-
-├── codemind/           # Core package18. **`get_code_metrics_summary`** - Comprehensive code metrics (LOC, complexity, maintainability)
-
-│   ├── workspace.py    # Workspace management19. **`get_import_graph`** - Dependency visualization with circular detection
-
-│   ├── parsers.py      # AST parsing20. **`find_configuration_inconsistencies`** - Config analysis and secret detection
-
-│   ├── indexing.py     # File indexing
-
-│   └── tools/          # 20 MCP tools (6 categories)### 🚀 Auto-Indexing System
-
-├── tests/              # Comprehensive test suite
-
-├── docs/               # Documentation- **File Watcher**: Automatically detects file changes
-
-├── configs/            # Configuration examples- **Smart Analysis**: Extracts file purpose from docstrings and comments
-
-└── codemind.py         # MCP server entry point- **Semantic Embeddings**: Uses sentence-transformers for semantic search
-
-```- **SQLite Storage**: Lightweight, zero-maintenance database
-
-
-
-## 🧪 Testing### ⚙️ Configuration
-
-
-
-```bash- **Zero Config**: Works out of the box for most projects
-
-# Run all tests- **Customizable**: Support for multiple programming languages
-
-python -m pytest tests/ -v- **Performance Tuned**: Fast queries (<500ms) and efficient indexing
-
-
-
-# Individual test suites## Quick Start
-
-python tests/test_01_basic.py        # Basic tool validation
-
-python tests/test_02_chains.py       # Tool chaining scenarios### Prerequisites
-
-python tests/test_03_complex.py      # Complex edge cases
-
-python tests/final_validation.py     # Production readiness- Python 3.10 or higher
-
-```- GitHub Copilot or compatible MCP client
-
-
-
-## 📊 Status### Installation
-
-
-
-- ✅ **20 Tools**: All operational and tested1. **Clone the repository**:
-
-- ✅ **Test Coverage**: 95% tool functionality, 91% edge cases```bash
-
-- ✅ **Type Safety**: Full type hints, passes Pylancegit clone https://github.com/yourusername/codemind.git
-
-- ✅ **Production Ready**: Validated and documentedcd codemind
-
-```
-
-## 🤝 Contributing
 
 2. **Install dependencies**:
-
-See [V2 Completion Report](docs/V2_COMPLETION_REPORT.md) for architecture details.```bash
-
-pip install -r requirements.txt
-
-## 📝 License```
-
-
-
-MIT License - See LICENSE file for details.3. **Initialize your project**:
-
 ```bash
-
----python codemind.py
-
+pip install -r requirements.txt
 ```
 
-**Built with**: Python 3.10+, FastMCP, sentence-transformers, GitPython
+3. **Initialize your project**:
+```bash
+python codemind.py
+```
 
 This will:
 - Create a `.codemind/` directory in your project
