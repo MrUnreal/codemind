@@ -2,8 +2,17 @@
 """Comprehensive debugging and testing suite for CodeMind v2.0."""
 
 import sys
+import os
 import traceback
 from pathlib import Path
+
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Set UTF-8 for Windows
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 print("=" * 80)
 print("🔍 CodeMind v2.0 - Comprehensive Testing & Debugging Suite")
