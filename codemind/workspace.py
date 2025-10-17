@@ -133,12 +133,25 @@ def get_workspace_embedding(workspace_root: str) -> Optional[SentenceTransformer
 
 
 def lazy_scan(workspace_root: str = "."):
-    """Scan workspace on first tool call."""
-    from .indexing import scan_project  # Avoid circular import
+    """Scan workspace on first tool call and re-index modified files.
+    
+    This is called automatically before every tool invocation to ensure:
+    - First-time users get initial index
+    - Existing users get fresh data (modified files re-indexed)
+    
+    Uses efficient change detection via mtime + hash comparison.
+    """
+    from .indexing import scan_project, scan_modified_files  # Avoid circular import
     
     conn = get_workspace_db(workspace_root)
     cursor = conn.execute('SELECT COUNT(*) FROM files')
-    if cursor.fetchone()[0] == 0:
+    file_count = cursor.fetchone()[0]
+    
+    if file_count == 0:
+        # First run - full scan
         logger.info(f"🔍 First run - scanning workspace: {workspace_root}")
         scan_project(workspace_root)
-        logger.info("✅ Scan complete!")
+        logger.info("✅ Initial scan complete!")
+    else:
+        # Subsequent runs - only re-index modified files
+        scan_modified_files(workspace_root)
