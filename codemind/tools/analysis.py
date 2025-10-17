@@ -26,24 +26,27 @@ def get_code_metrics_summary(workspace_root: str = ".", detailed: bool = False) 
     """
     Comprehensive static analysis metrics across entire project.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks about code quality, complexity, or health
+    - Starting work on unfamiliar codebase (understand scope)
+    - User asks "how big is this project?"
+    - Planning refactoring (identify problem areas)
+    - User mentions "technical debt", "code smells", "maintainability"
+    - User asks about any quality aspect of the codebase
+    
     Provides objective code quality dashboard with:
     - Project statistics (files, lines, comments)
-    - Complexity metrics (cyclomatic complexity estimates)
+    - Complexity metrics (cyclomatic complexity)
     - Function statistics (count, avg length, long functions)
     - Documentation coverage (docstrings, comments)
     - Code smells (magic numbers, long params, deep nesting)
     - Maintainability index (0-100 score)
     
+    This gives a comprehensive health check of the entire codebase.
+    
     Args:
         workspace_root: Root directory of workspace (default: current directory)
         detailed: Show detailed file-by-file breakdown (default: False)
-    
-    Use this for:
-    - Project health assessment
-    - Technical debt identification
-    - Code review prioritization
-    - Quality gate checks
-    - Onboarding (understand codebase scope)
     
     Returns:
         Comprehensive metrics with actionable recommendations
@@ -444,6 +447,15 @@ def find_configuration_inconsistencies(workspace_root: str = ".", include_exampl
     Compare configuration across different environments and files.
     
     Analyzes configuration files to identify:
+    USE THIS TOOL AUTOMATICALLY when:
+    - User mentions deployment, environment setup, configuration
+    - User asks "is the config correct?", "are settings consistent?"
+    - Preparing for deployment
+    - User mentions "dev vs prod", "environment differences"
+    - Security review (finding hardcoded secrets)
+    - Debugging environment-specific issues
+    
+    Analyzes configuration files to identify:
     - Missing variables across environments
     - Hardcoded secrets (API_KEY, SECRET, PASSWORD patterns)
     - Security risks (DEBUG=true in production)
@@ -451,16 +463,11 @@ def find_configuration_inconsistencies(workspace_root: str = ".", include_exampl
     - Configuration files inventory
     - Environment variable usage in code
     
+    This prevents configuration-related bugs and security issues.
+    
     Args:
         workspace_root: Root directory of workspace (default: current directory)
         include_examples: Show example values (default: True, masked for secrets)
-    
-    Use this for:
-    - Deployment safety (prevent missing config crashes)
-    - Security audits (find hardcoded secrets)
-    - Environment consistency checks
-    - "Works in dev, breaks in prod" prevention
-    - Configuration documentation
     
     Returns:
         Comprehensive configuration analysis with security recommendations

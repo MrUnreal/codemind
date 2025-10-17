@@ -12,15 +12,21 @@ def check_breaking_changes(function_name: str, file_path: str, workspace_root: s
     """
     Analyze impact of modifying a function/class signature.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User wants to rename/modify/refactor any function or class
+    - User asks to change a function signature
+    - User says "let's change...", "modify...", "rename...", "refactor..."
+    - Before suggesting any code modifications to functions
+    - User asks "what uses this function?"
+    - Planning any code changes
+    
+    ALWAYS check this BEFORE suggesting refactoring changes!
+    This prevents breaking existing code.
+    
     Args:
         function_name: Name of function/class to analyze
         file_path: File containing the function (absolute or relative to workspace)
         workspace_root: Root directory of workspace (default: current directory)
-    
-    Critical for:
-    - Refactoring safety: Know what will break
-    - Impact assessment: How many files affected
-    - Risk evaluation: Public API vs internal
     
     Returns:
     - Number of call sites
@@ -139,11 +145,15 @@ def find_usage_examples(
         file_path: Optional file containing the function (helps filter)
         limit: Maximum number of examples (default: 5)
     
-    Use this when:
-    - "How is this function used?"
-    - Learning API contracts from actual usage
-    - Understanding parameter patterns
-    - Finding usage best practices
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "how is [function] used?"
+    - User asks "show me examples of [function]"
+    - User wants to understand how to call a function
+    - Before modifying function signature (see current usage)
+    - User asks about parameter patterns or conventions
+    - Learning how an API works in practice
+    
+    This provides real-world usage examples from the actual codebase.
     
     Returns:
         Examples with file, line number, and surrounding context
@@ -230,15 +240,20 @@ def get_test_coverage(file_path: str, workspace_root: str = ".") -> str:
     """
     Show test coverage for a specific file/module.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User wants to modify/refactor code (check if tested!)
+    - User asks "is this tested?", "where are the tests?"
+    - Before suggesting changes to critical code
+    - User mentions "test coverage", "unit tests"
+    - Risk assessment for changes
+    - User asks "is it safe to change [file]?"
+    
+    This helps assess the safety of making changes to code.
+    IMPORTANT: Check this before suggesting refactoring untested code.
+    
     Args:
         file_path: File to check coverage for (absolute or relative to workspace)
         workspace_root: Root directory of workspace (default: current directory)
-    
-    Use this for:
-    - Risk assessment: Is this tested?
-    - Quality check: What's untested?
-    - Test discovery: Where are the tests?
-    - Refactoring safety: High coverage = safer changes
     
     Returns:
         Coverage estimate, test file locations, and recommendations

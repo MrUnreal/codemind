@@ -16,14 +16,18 @@ def force_reindex(workspace_root: str = ".") -> str:
     """
     Force a complete re-scan of the entire project.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User says "reindex", "refresh", "rescan"
+    - User reports search not finding recently added files
+    - User mentions database seems out of sync
+    - After major file operations (bulk add/delete/rename)
+    - User asks "why isn't my new file showing up?"
+    
+    This rebuilds the entire index from scratch.
+    NOTE: Can be slow for large projects - use sparingly.
+    
     Args:
         workspace_root: Root directory of workspace (default: current directory)
-    
-    Use this when:
-    - You've made major changes to multiple files
-    - The database seems out of sync
-    - You want to refresh all file metadata
-    - New files were added and need immediate indexing
     
     Returns:
         Summary of indexing operation
@@ -51,14 +55,19 @@ def index_file(file_path: str, workspace_root: str = ".") -> str:
     """
     Index or re-index a specific file immediately.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User just created a new file and wants to use it
+    - User says "index [filename]"
+    - User made major changes and wants immediate reindex
+    - Search not finding a specific newly created file
+    - User asks "why isn't [file] showing up in search?"
+    
+    This indexes a single file without full project rescan.
+    Faster than force_reindex for single file updates.
+    
     Args:
         file_path: Path to file to index (relative to project root or absolute)
         workspace_root: Root directory of workspace (default: current directory)
-    
-    Use this when:
-    - You just created a new file
-    - You made significant changes to a file
-    - You want to update a file's metadata immediately
     
     Returns:
         Confirmation with file details
@@ -127,17 +136,22 @@ def find_todo_and_fixme(
     """
     Search all TODO, FIXME, HACK, XXX comments with context.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "what needs to be done?", "show todos"
+    - User asks "what's broken?", "show fixmes"
+    - Planning work or sprint
+    - User mentions "technical debt", "pending tasks"
+    - Understanding known issues before making changes
+    - User asks "what are the known problems?"
+    
+    This finds all marked comments indicating work needed.
+    Critical for understanding what's on the radar.
+    
     Args:
         workspace_root: Root directory of workspace (default: current directory)
         tag_type: Type of tag (TODO/FIXME/HACK/XXX/NOTE)
         search_term: Optional keyword to filter results
         limit: Maximum results (default: 20)
-    
-    Critical for:
-    - Technical debt awareness: Know what needs fixing
-    - Avoiding duplicate work: Don't fix what's already marked
-    - Context for changes: Understand known issues
-    - Planning: Prioritize tech debt
     
     Returns:
         Grouped comments with file, line, and context
@@ -363,11 +377,16 @@ def get_file_history_summary(file_path: str, workspace_root: str = ".", days_bac
         workspace_root: Root directory of workspace (default: current directory)
         days_back: How many days of history (default: 90)
     
-    Use this for:
-    - Risk assessment: Frequently changed = fragile
-    - Expert identification: Who to ask for context
-    - Change patterns: Stable vs active development
-    - Impact understanding: Recent activity level
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "who worked on [file]?", "who wrote this?"
+    - User asks "how often does [file] change?"
+    - Risk assessment before modifying file
+    - User asks "who to ask about [file]?"
+    - Understanding file stability and maturity
+    - User mentions "git history", "contributors", "blame"
+    
+    This provides git-based change history and ownership info.
+    Requires git repository and git installed.
     
     Returns:
         Commit count, contributors, frequency, and risk rating

@@ -14,6 +14,16 @@ def find_dependencies(file_path: str, workspace_root: str = ".") -> str:
     """
     Show what this file imports and what imports this file.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User mentions working with or modifying any file
+    - User asks about relationships between files
+    - Planning to modify/refactor code (check dependencies first!)
+    - User asks "what uses this?" or "what does this use?"
+    - Understanding code architecture
+    - Before suggesting changes to any module
+    
+    This helps understand the impact and context of file changes.
+    
     Args:
         file_path: Path to the file to analyze (absolute or relative to workspace)
         workspace_root: Root directory of workspace (default: current directory)
@@ -98,6 +108,15 @@ def get_import_graph(workspace_root: str = ".", include_external: bool = False) 
     """
     Visual dependency graph showing all imports/exports across codebase.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks about project structure or architecture
+    - User asks "how are files connected?", "show dependencies"
+    - User mentions "circular dependencies", "import cycles"
+    - Understanding overall codebase organization
+    - User asks "what depends on what?"
+    - Planning major refactoring (understand full impact)
+    - Onboarding to understand project layout
+    
     Analyzes import relationships to provide:
     - Module count and total import connections
     - Circular dependencies (import cycles)
@@ -106,6 +125,8 @@ def get_import_graph(workspace_root: str = ".", include_external: bool = False) 
     - Import depth (dependency layers)
     - Orphaned files (no imports, not imported)
     - Full graph structure (who imports what)
+    
+    This gives a bird's-eye view of the entire codebase structure.
     
     Args:
         workspace_root: Root directory of workspace (default: current directory)
@@ -216,17 +237,21 @@ def get_call_tree(
     """
     Show the call tree for a function - what it calls and what calls it.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "what does [function] call?"
+    - User asks "what calls [function]?"
+    - Debugging execution flow
+    - User mentions "call stack", "execution path", "call chain"
+    - Understanding how functions interact
+    - Performance debugging (trace call hierarchy)
+    
+    This shows the complete call hierarchy around a function.
+    
     Args:
         function_name: Name of the function to analyze
         workspace_root: Root directory of workspace (default: current directory)
         file_path: Optional path to file containing the function (helps narrow search)
         depth: How many levels deep to trace (default: 2)
-    
-    Use this for:
-    - Debugging: "Where is this function called from?"
-    - Understanding: "What does this function call?"
-    - Refactoring: "What's the execution path?"
-    - Performance analysis: "What's the call chain?"
     
     Returns:
         Call tree showing callers and callees

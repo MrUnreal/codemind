@@ -11,6 +11,15 @@ from ..workspace import lazy_scan, get_workspace_db, get_workspace_path
 def get_file_context(file_path: str, workspace_root: str = ".") -> str:
     """Get detailed information about a file.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User mentions any file name or path
+    - User asks about what a file does
+    - User wants to understand, modify, or work with a file
+    - Before explaining code in a file
+    - User references a module or component
+    
+    This provides context about file purpose, exports, and metadata.
+    
     Args:
         file_path: Path to the file (relative or absolute)
         workspace_root: Path to the project workspace (default: current directory)
@@ -58,6 +67,16 @@ def get_file_context(file_path: str, workspace_root: str = ".") -> str:
 def query_recent_changes(workspace_root: str = ".", hours: int = 24) -> str:
     """See recent file modifications.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "what changed?", "what's new?", "recent updates?"
+    - Preparing for code review
+    - User mentions "latest changes", "modified files"
+    - Understanding recent development activity
+    - User asks about recent work or progress
+    - Onboarding to see what's been done lately
+    
+    This shows a timeline of recent file modifications and changes.
+    
     Args:
         workspace_root: Path to the project workspace (default: current directory)
         hours: Number of hours to look back
@@ -80,6 +99,17 @@ def query_recent_changes(workspace_root: str = ".", hours: int = 24) -> str:
 def record_decision(description: str, reasoning: str, workspace_root: str = ".", affected_files: Optional[list] = None) -> str:
     """Store architectural decisions.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User makes an important technical choice
+    - User explains "we chose X because Y"
+    - After discussing architecture or design patterns
+    - User says "let's document this decision"
+    - Important tradeoffs or alternatives are discussed
+    - User wants to record rationale for future reference
+    
+    This preserves the context and reasoning behind architectural decisions.
+    IMPORTANT: Only record when user explicitly states a decision was made.
+    
     Args:
         description: Brief description of the decision
         reasoning: Detailed reasoning behind the decision
@@ -100,6 +130,16 @@ def record_decision(description: str, reasoning: str, workspace_root: str = ".",
 
 def list_all_decisions(workspace_root: str = ".", keyword: Optional[str] = None, limit: int = 10) -> str:
     """Query architectural decisions, optionally filtered by keyword.
+    
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "why did we choose...?"
+    - User asks about past decisions or rationale
+    - User mentions "architectural decisions", "design choices"
+    - Understanding historical context of the codebase
+    - User asks "show me decisions about [topic]"
+    - Onboarding new team members to understand history
+    
+    This retrieves the documented reasoning behind past technical choices.
     
     Args:
         workspace_root: Path to the project workspace (default: current directory)

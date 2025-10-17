@@ -22,6 +22,15 @@ def cosine_similarity(a, b):
 def search_existing_code(query: str, workspace_root: str = ".", limit: int = 5) -> str:
     """Search for existing functionality before creating new files.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks about implementing/adding/creating any feature
+    - User wants to modify or extend functionality
+    - User asks "how to" or "where is" questions
+    - Starting any coding task to check if code already exists
+    - User mentions any technical concept or feature name
+    
+    This prevents duplicate code and finds relevant existing implementations.
+    
     Args:
         query: Semantic search query describing the functionality
         workspace_root: Path to the project workspace (default: current directory)
@@ -50,6 +59,14 @@ def search_existing_code(query: str, workspace_root: str = ".", limit: int = 5) 
 
 def check_functionality_exists(feature_description: str, workspace_root: str = ".", confidence_threshold: float = 0.7) -> str:
     """Check if functionality exists in the workspace.
+    
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "do we have...", "is there...", "does this project..."
+    - Before suggesting to create any new code/file/function
+    - User asks about implementing something (check first!)
+    - Making architectural decisions (verify what exists)
+    
+    This prevents duplicate implementations and finds existing solutions.
     
     Args:
         feature_description: Description of the functionality to check
@@ -82,6 +99,16 @@ def check_functionality_exists(feature_description: str, workspace_root: str = "
 def search_by_export(export_name: str, workspace_root: str = ".", limit: int = 10) -> str:
     """Find files that export a specific function, class, or variable.
     
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "where is [ClassName] defined?"
+    - User asks "which file has [function_name]?"
+    - User mentions a class/function name without specifying location
+    - User wants to import or use a specific symbol
+    - Debugging import errors or "undefined" issues
+    - User asks "where can I find [symbol]?"
+    
+    This locates the definition of any exported symbol in the codebase.
+    
     Args:
         export_name: Name of the export to search for
         workspace_root: Path to the project workspace (default: current directory)
@@ -111,6 +138,16 @@ def search_by_export(export_name: str, workspace_root: str = ".", limit: int = 1
 
 def get_similar_files(file_path: str, workspace_root: str = ".", limit: int = 5) -> str:
     """Find files similar to the given file (based on purpose/content).
+    
+    USE THIS TOOL AUTOMATICALLY when:
+    - User asks "are there similar files to [filename]?"
+    - User wants to follow existing patterns/conventions
+    - Creating new files (find examples to follow)
+    - User asks "show me examples like [file]"
+    - Understanding code organization patterns
+    - User mentions "similar", "like this", "same pattern"
+    
+    This helps maintain consistency by finding files with similar structure/purpose.
     
     Args:
         file_path: Path to the file to compare against
