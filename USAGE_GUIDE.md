@@ -11,18 +11,20 @@ CodeMind tools are **automatically invoked** by GitHub Copilot based on your que
 ### The Magic of Proactive Tools
 
 **Before Enhancement:**
+
 ```
 User: "I want to add authentication"
 Copilot: "Here's how to implement authentication..." ❌ Creates new code
 ```
 
 **After Enhancement:**
+
 ```
 User: "I want to add authentication"
 Copilot: 🤔 "Let me check existing code first..."
          → Automatically calls: search_existing_code("authentication")
          → Finds: src/auth/jwt.py (95% match)
-Copilot: "I found existing authentication in src/auth/jwt.py. 
+Copilot: "I found existing authentication in src/auth/jwt.py.
          Should I extend it or create something different?" ✅
 ```
 
@@ -33,7 +35,9 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### 🔍 Search & Discovery
 
 #### Find Existing Code
+
 **Just ask:**
+
 - "Does this project have authentication?"
 - "Search for database connection code"
 - "Find existing email validation"
@@ -41,26 +45,33 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 - "Do we have JWT token handling?"
 
 **Copilot automatically uses:**
+
 - `search_existing_code` - For semantic search
 - `check_functionality_exists` - For quick yes/no checks
 
 #### Locate Definitions
+
 **Just ask:**
+
 - "Where is UserModel defined?"
 - "Find the SentenceTransformer class"
 - "Which file exports APIClient?"
 - "Show me where parse_file is implemented"
 
 **Copilot automatically uses:**
+
 - `search_by_export` - To find definitions
 
 #### Find Similar Code
+
 **Just ask:**
+
 - "Show me files similar to user_service.py"
 - "Find files with similar structure to this one"
 - "What files follow the same pattern?"
 
 **Copilot automatically uses:**
+
 - `get_similar_files` - To find patterns
 
 ---
@@ -68,35 +79,45 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### 📝 Context & History
 
 #### Understand Files
+
 **Just ask:**
+
 - "What does workspace.py do?"
 - "Explain the purpose of indexing.py"
 - "What is parsers.py responsible for?"
 
 **Copilot automatically uses:**
+
 - `get_file_context` - To understand file purposes
 
 #### Track Changes
+
 **Just ask:**
+
 - "What changed recently?"
 - "Show me recent modifications"
 - "What files were edited today?"
 - "What have we worked on this week?"
 
 **Copilot automatically uses:**
+
 - `query_recent_changes` - To show modification history
 
 #### Decision History
+
 **Just ask:**
+
 - "Why did we choose JWT?"
 - "What decisions have we made about authentication?"
 - "Show me architecture decisions"
 - "What's the rationale for using SQLite?"
 
 **Copilot automatically uses:**
+
 - `list_all_decisions` - To retrieve historical decisions
 
 **Note:** To record a decision, be explicit:
+
 ```
 "Record this decision: Using JWT for auth because it's stateless"
 ```
@@ -106,33 +127,42 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### 🔗 Dependencies & Relationships
 
 #### Understand Dependencies
+
 **Just ask:**
+
 - "What does workspace.py import?"
 - "What files depend on database.py?"
 - "Show me the dependencies for utils.py"
 - "What imports indexing.py?"
 
 **Copilot automatically uses:**
+
 - `find_dependencies` - For bidirectional dependency analysis
 
 #### Visualize Project Structure
+
 **Just ask:**
+
 - "Show me the import graph"
 - "What's the project structure?"
 - "Are there circular dependencies?"
 - "How are modules connected?"
 
 **Copilot automatically uses:**
+
 - `get_import_graph` - For full dependency visualization
 
 #### Trace Call Trees
+
 **Just ask:**
+
 - "What calls search_existing_code?"
 - "What does get_workspace_db call?"
 - "Show me the call tree for parse_imports_ast"
 - "What's the execution path for this function?"
 
 **Copilot automatically uses:**
+
 - `get_call_tree` - For function call hierarchies
 
 ---
@@ -140,7 +170,9 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### 📊 Code Analysis & Quality
 
 #### Assess Code Quality
+
 **Just ask:**
+
 - "How's the code quality?"
 - "What's the complexity of this project?"
 - "Is the codebase maintainable?"
@@ -148,10 +180,13 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 - "What's the technical debt?"
 
 **Copilot automatically uses:**
+
 - `get_code_metrics_summary` - For comprehensive analysis
 
 #### Find Configuration Issues
+
 **Just ask:**
+
 - "Check configuration consistency"
 - "Are there config issues?"
 - "Audit environment variables"
@@ -159,6 +194,7 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 - "Compare dev vs prod config"
 
 **Copilot automatically uses:**
+
 - `find_configuration_inconsistencies` - For config auditing
 
 ---
@@ -166,33 +202,42 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### ⚠️ Refactoring Safety (CRITICAL)
 
 #### Before Changing Code
+
 **Just ask:**
+
 - "What will break if I rename UserModel?"
 - "Is it safe to change parse_file?"
 - "What depends on this function?"
 - "Check breaking changes for APIClient"
 
 **Copilot automatically uses:**
+
 - `check_breaking_changes` - **ALWAYS before refactoring**
 
 #### Learn From Usage
+
 **Just ask:**
+
 - "How is get_workspace_db used?"
 - "Show me examples of using search_existing_code"
 - "What are the usage patterns for this function?"
 - "How do we call this API?"
 
 **Copilot automatically uses:**
+
 - `find_usage_examples` - To show real-world usage
 
 #### Test Coverage Check
+
 **Just ask:**
+
 - "Is this file tested?"
 - "What's the test coverage?"
 - "Are there tests for workspace.py?"
 - "How well is this tested?"
 
 **Copilot automatically uses:**
+
 - `get_test_coverage` - To assess testing safety
 
 ---
@@ -200,19 +245,24 @@ Copilot: "I found existing authentication in src/auth/jwt.py.
 ### 🗂️ Index Management
 
 #### Refresh Index
+
 **Just ask:**
+
 - "Reindex the project"
 - "Refresh the CodeMind database"
 - "Something's out of sync, rebuild the index"
 
 **Copilot automatically uses:**
+
 - `force_reindex` - For full project rescan
 
 **When you create new files:**
 Copilot automatically uses `index_file` to add them to the index.
 
 #### Find Technical Debt
+
 **Just ask:**
+
 - "Show me all TODOs"
 - "What needs fixing?"
 - "Find all FIXMEs"
@@ -220,16 +270,20 @@ Copilot automatically uses `index_file` to add them to the index.
 - "List technical debt"
 
 **Copilot automatically uses:**
+
 - `find_todo_and_fixme` - To track code comments
 
 #### Git History
+
 **Just ask:**
+
 - "Who worked on workspace.py?"
 - "What's the change frequency for this file?"
 - "Is this file stable or active?"
 - "Show git history for indexing.py"
 
 **Copilot automatically uses:**
+
 - `get_file_history_summary` - For contributor analysis
 
 ---
@@ -239,17 +293,20 @@ Copilot automatically uses `index_file` to add them to the index.
 ### Scenario 1: Adding a Feature
 
 **Your prompt:**
+
 ```
 "I need to add email validation to the user registration"
 ```
 
 **What Copilot does automatically:**
+
 1. Searches for existing email validation code
 2. Checks if validation utilities exist
 3. Finds similar validation patterns
 4. Suggests modifying existing code vs creating new
 
 **You get:**
+
 ```
 "Found existing email validation in utils/validators.py.
 I can extend validate_email() to add your requirements."
@@ -260,17 +317,20 @@ I can extend validate_email() to add your requirements."
 ### Scenario 2: Refactoring
 
 **Your prompt:**
+
 ```
 "Let's rename the scan_project function to index_workspace"
 ```
 
 **What Copilot does automatically:**
+
 1. Checks breaking changes (what calls this function?)
 2. Finds usage examples to understand call patterns
 3. Checks test coverage for safety
 4. Analyzes dependencies
 
 **You get:**
+
 ```
 "⚠️ scan_project is called in 7 files:
 - codemind/workspace.py (3 times)
@@ -287,17 +347,20 @@ Safe to rename, but you'll need to update these locations."
 ### Scenario 3: Understanding Code
 
 **Your prompt:**
+
 ```
 "Explain how the workspace system works"
 ```
 
 **What Copilot does automatically:**
+
 1. Gets context for workspace.py
 2. Finds dependencies (what it imports/exports)
 3. Shows recent changes
 4. Retrieves related architectural decisions
 
 **You get:**
+
 ```
 "workspace.py manages multi-workspace isolation:
 - Creates per-workspace databases
@@ -313,17 +376,20 @@ Decision #15: Chose SQLite per workspace for data isolation"
 ### Scenario 4: Code Review
 
 **Your prompt:**
+
 ```
 "Review the recent changes to the tools/ directory"
 ```
 
 **What Copilot does automatically:**
+
 1. Queries recent changes
 2. Gets code metrics
 3. Checks for configuration issues
 4. Finds TODO/FIXME comments
 
 **You get:**
+
 ```
 "Recent changes (last 7 days):
 - tools/search.py: Enhanced docstrings (+450 lines)
@@ -418,6 +484,7 @@ Each tool has specific triggers in its docstring that Copilot uses to decide whe
 ### "Copilot isn't using CodeMind tools"
 
 **Solution:**
+
 1. Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
 2. Verify MCP server in settings: Check `.vscode/settings.json`
 3. Be more specific in your questions
@@ -426,6 +493,7 @@ Each tool has specific triggers in its docstring that Copilot uses to decide whe
 ### "Tools are returning empty results"
 
 **Solution:**
+
 1. First-time use: Wait for initial indexing (30-60 seconds)
 2. Force reindex: "Reindex the project"
 3. Check file extensions: Ensure your files are in `watched_extensions`
@@ -434,6 +502,7 @@ Each tool has specific triggers in its docstring that Copilot uses to decide whe
 ### "Too many tool calls / Slow responses"
 
 **Solution:**
+
 1. This is normal for complex questions
 2. Be more specific to reduce unnecessary tool usage
 3. Tools cache results for better performance
@@ -467,16 +536,19 @@ You'll know tools are working when Copilot:
 ## 🎓 Learning Curve
 
 ### Week 1: Discovery
+
 - Watch for Copilot automatically searching code
 - Notice when it suggests existing code vs creating new
 - See breaking change warnings
 
 ### Week 2: Trust
+
 - Rely on automatic tool usage
 - Ask more complex questions
 - Leverage decision tracking
 
 ### Week 3: Mastery
+
 - Natural conversation with Copilot about your codebase
 - Seamless refactoring with safety checks
 - Efficient code discovery and reuse
@@ -493,6 +565,7 @@ show me similar notification code, and verify no config issues."
 ```
 
 Copilot will automatically:
+
 1. Search for email utilities
 2. Find similar notification patterns
 3. Check configuration consistency
