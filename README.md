@@ -1,4 +1,4 @@
-# CodeMind 🧠# CodeMind 🧠# CodeMind 🧠# CodeMind 🧠# CodeMind - Multi-Workspace MCP Memory Server
+# CodeMind 🧠# CodeMind 🧠# CodeMind 🧠# CodeMind 🧠# CodeMind 🧠# CodeMind - Multi-Workspace MCP Memory Server
 
 
 
@@ -6,15 +6,15 @@
 
 
 
-CodeMind is a Model Context Protocol (MCP) server that provides GitHub Copilot with 20 specialized tools for intelligent code search, analysis, and refactoring safety.> **Give GitHub Copilot memory across all your projects**
+[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()> **Give GitHub Copilot memory across all your projects**
 
 
 
-[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
+**CodeMind** is a Model Context Protocol (MCP) server that gives GitHub Copilot deep understanding of your codebase through 20 specialized AI tools for code search, analysis, and refactoring safety.
 
 
 
----CodeMind is a Model Context Protocol (MCP) server that provides GitHub Copilot with 20 specialized tools for intelligent code search, analysis, and refactoring safety.> *Give GitHub Copilot memory across all your projects*
+---CodeMind is a Model Context Protocol (MCP) server that provides GitHub Copilot with 20 specialized tools for intelligent code search, analysis, and refactoring safety.> **Give GitHub Copilot memory across all your projects**
 
 
 
@@ -24,231 +24,482 @@ CodeMind is a Model Context Protocol (MCP) server that provides GitHub Copilot w
 
 Without project memory, GitHub Copilot:[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
+
+
 - ❌ Creates duplicate files when functionality already exists
 
 - ❌ Forgets architectural decisions made minutes ago  
 
-- ❌ Doesn't understand file relationships or purposes
+- ❌ Doesn't understand file relationships or purposes---CodeMind is a Model Context Protocol (MCP) server that provides GitHub Copilot with 20 specialized tools for intelligent code search, analysis, and refactoring safety.> *Give GitHub Copilot memory across all your projects*
 
-- ❌ Suggests rewrites instead of targeted modifications---**CodeMind** is a Model Context Protocol (MCP) server that gives GitHub Copilot deep understanding of your codebase through 20 specialized AI tools for code search, analysis, and refactoring safety.> **Intelligent code memory for GitHub Copilot via MCP****Tagline:** *Give Copilot a memory across all your projects*
+- ❌ Suggests rewrites instead of targeted modifications
 
 
 
 ## ✨ The Solution
 
+## 🎯 The Problem
+
+CodeMind gives Copilot:
 
 
-CodeMind gives Copilot:## 🎯 The Problem
 
 - ✅ **Semantic Search** - Find existing functionality instantly
 
-- ✅ **Project Memory** - Track decisions, changes, and context
+- ✅ **Project Memory** - Track decisions, changes, and contextWithout project memory, GitHub Copilot:[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 - ✅ **Dependency Analysis** - Understand code relationships
 
-- ✅ **Refactoring Safety** - Identify breaking changes before they happenWithout project memory, GitHub Copilot:---
+- ✅ **Refactoring Safety** - Identify breaking changes before they happen- ❌ Creates duplicate files when functionality already exists
+
+- ✅ **Multi-Workspace** - Handle multiple projects with isolated databases
+
+- ❌ Forgets architectural decisions made minutes ago  
+
+---
+
+- ❌ Doesn't understand file relationships or purposes
+
+## ⚡ Quick Start
+
+- ❌ Suggests rewrites instead of targeted modifications---**CodeMind** is a Model Context Protocol (MCP) server that gives GitHub Copilot deep understanding of your codebase through 20 specialized AI tools for code search, analysis, and refactoring safety.> **Intelligent code memory for GitHub Copilot via MCP****Tagline:** *Give Copilot a memory across all your projects*
+
+### 1. Install
 
 
 
----- ❌ Creates duplicate files when functionality already exists
+```bash
 
-
-
-## ⚡ Quick Start- ❌ Forgets architectural decisions made minutes ago  
-
-
-
-### 1. Install- ❌ Doesn't understand file relationships or purposes
-
-
-
-```bash- ❌ Suggests rewrites instead of targeted modifications## ⚡ Quick StartCodeMind gives GitHub Copilot deep understanding of your codebase through 20 specialized tools for code search, analysis, and refactoring safety.## Overview
-
-git clone https://github.com/MrUnreal/codemind.git
+git clone https://github.com/MrUnreal/codemind.git## ✨ The Solution
 
 cd codemind
 
 pip install -r requirements.txt
 
-```## ✨ The Solution
+```
 
-
+CodeMind gives Copilot:## 🎯 The Problem
 
 ### 2. Configure VS Code
 
+- ✅ **Semantic Search** - Find existing functionality instantly
 
+Add to `.vscode/settings.json`:
 
-Add to `.vscode/settings.json`:CodeMind gives Copilot:```bash
+- ✅ **Project Memory** - Track decisions, changes, and context
 
+```json
 
+{- ✅ **Dependency Analysis** - Understand code relationships
 
-```json- ✅ **Semantic Search** - Find existing functionality instantly
+  "mcp.servers": {
 
-{
+    "codemind": {- ✅ **Refactoring Safety** - Identify breaking changes before they happenWithout project memory, GitHub Copilot:---
 
-  "mcp.servers": {- ✅ **Project Memory** - Track decisions, changes, and context# 1. Install dependencies
-
-    "codemind": {
-
-      "command": "python",- ✅ **Dependency Analysis** - Understand code relationships
+      "command": "python",
 
       "args": ["D:/Projects/Python/CodeMind/codemind.py"]
 
-    }- ✅ **Refactoring Safety** - Identify breaking changes before they happenpip install -r requirements.txt## 🚀 Quick StartCodeMind is a **workspace-aware** Model Context Protocol (MCP) server that gives GitHub Copilot queryable memory about your projects. It helps prevent Copilot from creating duplicate files, forgetting architectural decisions, and suggesting rewrites instead of modifications.
+    }
 
-  }
+  }---- ❌ Creates duplicate files when functionality already exists
 
 }
 
 ```
 
+
+
+### 3. Restart Copilot## ⚡ Quick Start- ❌ Forgets architectural decisions made minutes ago  
+
+
+
+Press `Ctrl+Shift+P` → "Developer: Reload Window"
+
+
+
+🎉 **Done!** Copilot now has access to all 20 CodeMind tools.### 1. Install- ❌ Doesn't understand file relationships or purposes
+
+
+
 ---
 
-### 3. Restart Copilot
+
+
+## 🛠️ 20 MCP Tools```bash- ❌ Suggests rewrites instead of targeted modifications## ⚡ Quick StartCodeMind gives GitHub Copilot deep understanding of your codebase through 20 specialized tools for code search, analysis, and refactoring safety.## Overview
 
 
 
-Press `Ctrl+Shift+P` → "Copilot: Restart"
-
-## ⚡ Quick Start# 2. Configure GitHub Copilot in VS Code
-
-🎉 **Done!** Copilot now has access to all 20 CodeMind tools.
+CodeMind provides 20 specialized tools organized into 6 categories:git clone https://github.com/MrUnreal/codemind.git
 
 
 
----
+| Category | Tools | Purpose |cd codemind
 
-### 1. Install# Add to your .vscode/settings.json or user settings:
+|----------|-------|---------|
 
-## 🛠️ 20 MCP Tools
+| 🔍 **Search & Discovery** | 4 tools | Find existing code, check if features exist, locate definitions |pip install -r requirements.txt
 
-```bash
+| 📝 **Context & History** | 4 tools | Understand files, track changes, record decisions |
 
-### Tool Overview
+| 🔗 **Dependencies** | 3 tools | Analyze imports, visualize relationships, trace call trees |```## ✨ The Solution
 
-git clone https://github.com/MrUnreal/codemind.git{```bash### ✨ What's New in v2.0
-
-CodeMind provides 20 specialized tools organized into 6 categories:
-
-cd codemind
-
-| Category | Tools | Purpose |
-
-|----------|-------|---------|pip install -r requirements.txt  "mcp.servers": {
-
-| 🔍 **Search & Discovery** | 4 tools | Find existing code, check if features exist, locate definitions |
-
-| 📝 **Context & History** | 4 tools | Understand files, track changes, record decisions |```
-
-| 🔗 **Dependencies** | 3 tools | Analyze imports, visualize relationships, trace call trees |
-
-| 📊 **Code Analysis** | 2 tools | Measure complexity, detect configuration issues |    "codemind": {# Install
+| 📊 **Code Analysis** | 2 tools | Measure complexity, detect configuration issues |
 
 | ⚠️ **Refactoring Safety** | 3 tools | Check breaking changes, find usage patterns, estimate test coverage |
 
-| 🗂️ **Management** | 4 tools | Index files, track TODOs, analyze git history |### 2. Configure VS Code
+| 🗂️ **Management** | 4 tools | Index files, track TODOs, analyze git history |
+
+### 2. Configure VS Code
+
+📚 **[Full Tool Documentation →](docs/TOOLS.md)**
 
 
 
-### Search & Discovery ToolsAdd to `.vscode/settings.json`:      "command": "python",
+---
+
+Add to `.vscode/settings.json`:CodeMind gives Copilot:```bash
+
+## 💡 How It Works
 
 
 
-- `search_existing_code` - Semantic search to find existing functionality```json
+CodeMind indexes your codebase and provides tools that Copilot automatically uses:
 
-- `check_functionality_exists` - Quick yes/no check if feature already exists
+```json- ✅ **Semantic Search** - Find existing functionality instantly
 
-- `search_by_export` - Find where functions/classes are defined{      "args": ["d:/your/path/to/CodeMind/codemind.py"]pip install -r requirements.txt- **🎯 Multi-Workspace Support**: Work with multiple projects simultaneously - each with its own memory
+1. **Developer asks Copilot** - "Add JWT authentication"
 
-- `get_similar_files` - Discover files with similar patterns
+2. **Copilot calls CodeMind** - `search_existing_code("JWT authentication")`{
 
-  "mcp.servers": {
+3. **CodeMind searches** - Uses semantic embeddings to find relevant files
 
-### Context & History Tools
+4. **Returns results** - "Found: src/auth/jwt.py (95% match)"  "mcp.servers": {- ✅ **Project Memory** - Track decisions, changes, and context# 1. Install dependencies
 
-    "codemind": {    }
+5. **Copilot responds** - "Found existing JWT auth. Should I modify it?"
 
-- `get_file_context` - Understand what a file does and why it exists
+    "codemind": {
 
-- `query_recent_changes` - See what's been modified recently      "command": "python",
+### Key Features
 
-- `record_decision` - Store architectural decisions with rationale
+      "command": "python",- ✅ **Dependency Analysis** - Understand code relationships
 
-- `list_all_decisions` - Query decision history with keyword filtering      "args": ["D:/Projects/Python/CodeMind/codemind.py"]  }- **📦 Modular Architecture**: Clean package structure with separate modules for better maintainability
+- **🎯 Multi-Workspace**: Isolated databases per project - no cross-contamination
 
+- **⚡ Real-Time Indexing**: Auto-detects file changes and updates indexes      "args": ["D:/Projects/Python/CodeMind/codemind.py"]
 
+- **🧠 Semantic Search**: Uses sentence-transformers for intelligent code discovery
 
-### Dependency Tools    }
+- **🔍 AST-Based**: Production-quality Python parsing, not regex hacks    }- ✅ **Refactoring Safety** - Identify breaking changes before they happenpip install -r requirements.txt## 🚀 Quick StartCodeMind is a **workspace-aware** Model Context Protocol (MCP) server that gives GitHub Copilot queryable memory about your projects. It helps prevent Copilot from creating duplicate files, forgetting architectural decisions, and suggesting rewrites instead of modifications.
 
+- **📊 Zero-LLM Analysis**: Fast static analysis without API calls
 
+  }
 
-- `find_dependencies` - Bidirectional dependency analysis  }}
+---
 
-- `get_import_graph` - Visualize module relationships
+}
 
-- `get_call_tree` - Function call graph (callers + callees)}
-
-
-
-### Code Analysis Tools```# Configure VS Code MCP- **🔧 Workspace Parameter**: All tools accept `workspace_root` parameter for explicit project targeting
-
-
-
-- `get_code_metrics_summary` - Complexity, maintainability, code smells
-
-- `find_configuration_inconsistencies` - Detect config mismatches across environments
-
-### 3. Restart Copilot# 3. Restart GitHub Copilot
-
-### Refactoring Safety Tools
-
-Press `Ctrl+Shift+P` → "Copilot: Restart"
-
-- `check_breaking_changes` - Identify impact before refactoring
-
-- `find_usage_examples` - See real-world usage patterns# Press Ctrl+Shift+P → "Copilot: Restart"# Add to .vscode/settings.json:- **🏗️ Production-Quality**: AST-based parsing and radon metrics for accurate analysis
-
-- `get_test_coverage` - Estimate test coverage for files
-
-🎉 **Done!** Copilot now has access to all 20 CodeMind tools.
-
-### Management Tools
+## 📖 Example Usage
 
 ```
 
-- `force_reindex` - Manually trigger full project re-scan
+### Before Creating New Files
 
-- `index_file` - Index specific file immediately---
+---
 
-- `find_todo_and_fixme` - Track technical debt (TODO/FIXME/HACK)
+```
 
-- `get_file_history_summary` - Git commit history analysis{
+💬 "Does this project have user authentication?"### 3. Restart Copilot
+
+→ check_functionality_exists("user authentication")
+
+✅ Found in src/auth/jwt.py - no need to create new file
+
+```
+
+Press `Ctrl+Shift+P` → "Copilot: Restart"
+
+### Before Refactoring
+
+## ⚡ Quick Start# 2. Configure GitHub Copilot in VS Code
+
+```
+
+💬 "What will break if I change the UserModel class?"🎉 **Done!** Copilot now has access to all 20 CodeMind tools.
+
+→ check_breaking_changes("UserModel", "models/user.py")
+
+⚠️ 7 files will be affected: [list of impacted files]
+
+```
+
+---
+
+### Understanding Code Relationships
+
+### 1. Install# Add to your .vscode/settings.json or user settings:
+
+```
+
+💬 "What depends on database.py?"## 🛠️ 20 MCP Tools
+
+→ find_dependencies("src/database.py")
+
+📋 Imported by: models/user.py, models/post.py, auth/session.py```bash
+
+```
+
+### Tool Overview
+
+### Finding Usage Patterns
+
+git clone https://github.com/MrUnreal/codemind.git{```bash### ✨ What's New in v2.0
+
+```
+
+💬 "How is the API client used in this codebase?"CodeMind provides 20 specialized tools organized into 6 categories:
+
+→ find_usage_examples("APIClient")
+
+📝 Shows 5 real-world usage examples with contextcd codemind
+
+```
+
+| Category | Tools | Purpose |
+
+📚 **[More Examples →](docs/EXAMPLES.md)** | **[Usage Guide →](USAGE_GUIDE.md)**
+
+|----------|-------|---------|pip install -r requirements.txt  "mcp.servers": {
+
+---
+
+| 🔍 **Search & Discovery** | 4 tools | Find existing code, check if features exist, locate definitions |
+
+## 🧪 Testing
+
+| 📝 **Context & History** | 4 tools | Understand files, track changes, record decisions |```
+
+```bash
+
+# Run all test suites| 🔗 **Dependencies** | 3 tools | Analyze imports, visualize relationships, trace call trees |
+
+python tests/run_all_tests.py
+
+| 📊 **Code Analysis** | 2 tools | Measure complexity, detect configuration issues |    "codemind": {# Install
+
+# Individual test suites
+
+python tests/test_01_basic.py       # 19 tests - basic tool validation| ⚠️ **Refactoring Safety** | 3 tools | Check breaking changes, find usage patterns, estimate test coverage |
+
+python tests/test_02_chains.py      # 6 scenarios - tool chaining
+
+python tests/test_03_complex.py     # 30 tests - edge cases & stress| 🗂️ **Management** | 4 tools | Index files, track TODOs, analyze git history |### 2. Configure VS Code
+
+```
 
 
 
-📚 **[Full Tool Documentation →](docs/TOOLS.md)**## 🛠️ 20 MCP Tools
+**Test Results:**
+
+- ✅ 110+ tests across 6 suites### Search & Discovery ToolsAdd to `.vscode/settings.json`:      "command": "python",
+
+- ✅ 99%+ pass rate
+
+- ✅ Security tested (SQL injection, path traversal)
+
+- ✅ Stress tested (large queries, bulk operations)
+
+- `search_existing_code` - Semantic search to find existing functionality```json
+
+📚 **[Testing Guide →](docs/TESTING.md)**
+
+- `check_functionality_exists` - Quick yes/no check if feature already exists
+
+---
+
+- `search_by_export` - Find where functions/classes are defined{      "args": ["d:/your/path/to/CodeMind/codemind.py"]pip install -r requirements.txt- **🎯 Multi-Workspace Support**: Work with multiple projects simultaneously - each with its own memory
+
+## 🌟 What's New in v2.0
+
+- `get_similar_files` - Discover files with similar patterns
+
+| Feature | Description |
+
+|---------|-------------|  "mcp.servers": {
+
+| 🎯 **Multi-Workspace Support** | Work with multiple projects simultaneously |
+
+| 📦 **Modular Architecture** | Clean package structure (11 modules, 2,577 lines) |### Context & History Tools
+
+| 🔧 **Explicit Workspace Targeting** | All tools accept `workspace_root` parameter |
+
+| 🏗️ **Production Quality** | AST-based parsing, comprehensive error handling |    "codemind": {    }
+
+| 🧪 **Fully Tested** | 110+ tests across 6 test suites (99%+ pass rate) |
+
+| 🤖 **Proactive Tools** | Enhanced docstrings for automatic Copilot usage |- `get_file_context` - Understand what a file does and why it exists
 
 
+
+📚 **[Migration Guide →](docs/MIGRATION_GUIDE.md)** | **[Changelog →](CHANGELOG.md)**- `query_recent_changes` - See what's been modified recently      "command": "python",
+
+
+
+---- `record_decision` - Store architectural decisions with rationale
+
+
+
+## 📚 Documentation- `list_all_decisions` - Query decision history with keyword filtering      "args": ["D:/Projects/Python/CodeMind/codemind.py"]  }- **📦 Modular Architecture**: Clean package structure with separate modules for better maintainability
+
+
+
+| Document | Description |
+
+|----------|-------------|
+
+| **[Usage Guide](USAGE_GUIDE.md)** | How to use CodeMind with Copilot |### Dependency Tools    }
+
+| **[Tool Reference](docs/TOOLS.md)** | Complete documentation of all 20 tools |
+
+| **[Architecture](docs/ARCHITECTURE.md)** | System design and technical details |
+
+| **[Multi-Workspace Guide](docs/MULTI_WORKSPACE_GUIDE.md)** | Working with multiple projects |
+
+| **[Examples](docs/EXAMPLES.md)** | Real-world usage scenarios |- `find_dependencies` - Bidirectional dependency analysis  }}
+
+| **[Testing](docs/TESTING.md)** | Test suite details and validation |
+
+| **[Configuration](docs/CONFIGURATION.md)** | Customization options |- `get_import_graph` - Visualize module relationships
+
+| **[FAQ](docs/FAQ.md)** | Common questions and troubleshooting |
+
+- `get_call_tree` - Function call graph (callers + callees)}
+
+---
+
+
+
+## 🔧 Configuration
+
+### Code Analysis Tools```# Configure VS Code MCP- **🔧 Workspace Parameter**: All tools accept `workspace_root` parameter for explicit project targeting
+
+Create `codemind_config.json` in your project root:
+
+
+
+```json
+
+{- `get_code_metrics_summary` - Complexity, maintainability, code smells
+
+  "watched_extensions": [".py", ".js", ".ts", ".tsx", ".jsx"],
+
+  "max_file_size_kb": 500,- `find_configuration_inconsistencies` - Detect config mismatches across environments
+
+  "embedding_model": "all-MiniLM-L6-v2",
+
+  "exclude_dirs": [".git", ".venv", "node_modules"]### 3. Restart Copilot# 3. Restart GitHub Copilot
+
+}
+
+```### Refactoring Safety Tools
+
+
+
+📚 **[Full Configuration Reference →](docs/CONFIGURATION.md)**Press `Ctrl+Shift+P` → "Copilot: Restart"
+
+
+
+---- `check_breaking_changes` - Identify impact before refactoring
+
+
+
+## 📊 Status- `find_usage_examples` - See real-world usage patterns# Press Ctrl+Shift+P → "Copilot: Restart"# Add to .vscode/settings.json:- **🏗️ Production-Quality**: AST-based parsing and radon metrics for accurate analysis
+
+
+
+| Metric | Status |- `get_test_coverage` - Estimate test coverage for files
+
+|--------|--------|
+
+| **Tools** | ✅ 20/20 operational |🎉 **Done!** Copilot now has access to all 20 CodeMind tools.
+
+| **Tests** | ✅ 110+ tests, 99%+ pass rate |
+
+| **Type Safety** | ✅ Full type hints, Pylance compliant |### Management Tools
+
+| **Documentation** | ✅ Comprehensive guides and API docs |
+
+| **Production Ready** | ✅ Battle-tested on real projects |```
+
+
+
+---- `force_reindex` - Manually trigger full project re-scan
+
+
+
+## 🤝 Contributing- `index_file` - Index specific file immediately---
+
+
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.- `find_todo_and_fixme` - Track technical debt (TODO/FIXME/HACK)
+
+
+
+### Development Setup- `get_file_history_summary` - Git commit history analysis{
+
+
+
+```bash
+
+git clone https://github.com/MrUnreal/codemind.git
+
+cd codemind📚 **[Full Tool Documentation →](docs/TOOLS.md)**## 🛠️ 20 MCP Tools
+
+pip install -r requirements.txt
+
+python tests/run_all_tests.py
+
+```
 
 ---🎉 **That's it!** Copilot can now access all 20 CodeMind tools to understand your project.
 
+---
 
+
+
+## 📝 License
 
 ## 💡 How It Works```mermaid
 
+MIT License - See [LICENSE](LICENSE) file for details.
 
+
+
+---
 
 CodeMind indexes your codebase and provides tools that Copilot can use to understand your project:graph TB  "mcp.servers": {### The Problem
 
+## 💬 Support
 
 
-1. **Developer asks Copilot** - "Add JWT authentication"    subgraph "🔍 Search & Discovery"
 
-2. **Copilot calls CodeMind** - `search_existing_code("JWT authentication")`
+- 🐛 **Issues**: [GitHub Issues](https://github.com/MrUnreal/codemind/issues)
 
-3. **CodeMind searches** - Uses semantic embeddings to find relevant files        A1[search_existing_code]---
+- 📧 **Contact**: Via GitHub1. **Developer asks Copilot** - "Add JWT authentication"    subgraph "🔍 Search & Discovery"
 
-4. **Returns results** - "Found: src/auth/jwt.py (95% match)"
+
+
+---2. **Copilot calls CodeMind** - `search_existing_code("JWT authentication")`
+
+
+
+**Built with** ❤️ **using**: Python 3.10+, FastMCP, sentence-transformers, GitPython3. **CodeMind searches** - Uses semantic embeddings to find relevant files        A1[search_existing_code]---
+
+
+
+*Making GitHub Copilot smarter, one project at a time* 🚀4. **Returns results** - "Found: src/auth/jwt.py (95% match)"
+
 
 5. **Copilot responds** - "Found existing JWT auth. Should I modify it?"        A2[check_functionality_exists]
 
