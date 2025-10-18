@@ -24,7 +24,7 @@ if requirements_file.exists():
 
 setup(
     name="mcp-codemind",
-    version="2.0.1",
+    version="2.0.3",
     author="MrUnreal",
     author_email="mrunreal@users.noreply.github.com",
     description="Multi-Workspace MCP Memory Server for GitHub Copilot",
