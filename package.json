@@ -1,6 +1,6 @@
 {
   "name": "mcp-codemind",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "Multi-Workspace MCP Memory Server for GitHub Copilot",
   "main": "bin/codemind.js",
   "bin": {

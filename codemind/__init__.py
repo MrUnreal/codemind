@@ -10,7 +10,7 @@ Features:
 - Semantic search using sentence-transformers
 - Code metrics and quality analysis
 """
-__version__ = "2.0.1"
+__version__ = "2.0.3"
 __author__ = "MrUnreal"
 __license__ = "MIT"
 
