@@ -100,7 +100,7 @@ We welcome code contributions for:
 
 ### Prerequisites
 
-- **Python 3.10 or higher** (check: `python --version`)
+- **Python 3.8 or higher** (3.10+ recommended) (check: `python --version`)
 - **Git** (check: `git --version`)
 - **Text editor** (VS Code recommended)
 
