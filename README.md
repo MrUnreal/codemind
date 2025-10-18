@@ -27,7 +27,38 @@
 
 ## Quick Start
 
-**1. Install**
+### Option 1: Install from PyPI (Recommended)
+
+**1. Install the package**
+```bash
+pip install mcp-codemind
+```
+
+**2. Configure VS Code**
+
+Add to `.vscode/settings.json`:
+```json
+{
+  "mcp.servers": {
+    "codemind": {
+      "command": "python",
+      "args": ["-m", "codemind"]
+    }
+  }
+}
+```
+
+**3. Reload**
+
+Press `Ctrl+Shift+P` → "Developer: Reload Window"
+
+Done! 🎉
+
+---
+
+### Option 2: Install from Source
+
+**1. Clone and install**
 ```bash
 git clone https://github.com/MrUnreal/codemind.git
 cd codemind
@@ -42,7 +73,7 @@ Add to `.vscode/settings.json`:
   "mcp.servers": {
     "codemind": {
       "command": "python",
-      "args": ["D:/Projects/Python/CodeMind/codemind.py"]
+      "args": ["D:/path/to/codemind/codemind.py"]
     }
   }
 }
@@ -51,8 +82,6 @@ Add to `.vscode/settings.json`:
 **3. Reload**
 
 Press `Ctrl+Shift+P` → "Developer: Reload Window"
-
-Done! 🎉
 
 ---
 
