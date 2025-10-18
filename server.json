@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.mrunreal/codemind",
+  "title": "CodeMind",
+  "description": "MCP server with 20 tools for code analysis, semantic search, and project understanding",
+  "version": "2.0.1",
+  "license": "MIT",
+  "homepage": "https://github.com/MrUnreal/codemind",
+  "author": {
+    "name": "MrUnreal",
+    "url": "https://github.com/MrUnreal"
+  },
+  "sourceCode": "https://github.com/MrUnreal/codemind",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-codemind",
+      "version": "2.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "categories": [
+    "Development",
+    "Code Analysis",
+    "AI Assistant"
+  ],
+  "tags": [
+    "github-copilot",
+    "code-analysis",
+    "semantic-search",
+    "vscode",
+    "python",
+    "mcp-server"
+  ]
+}
