@@ -1,6 +1,6 @@
 # 📚 CodeMind Documentation Index
 
-**Quick Navigation** | Version 2.0.1 | October 2024
+**Quick Navigation** | CodeMind v2.0.1 | Documentation updated October 2024
 
 ---
 
@@ -82,7 +82,7 @@
 
 - **Version**: 2.0.1
 - **Tools**: 20 MCP tools across 6 categories
-- **Tests**: 110+ tests with 99%+ pass rate
+- **Tests**: 110+ tests across 6 test suites (99%+ pass rate per TESTING.md)
 - **Code**: ~2,600 lines (modular structure)
 - **Documentation**: 20+ files covering all aspects
 - **Status**: ✅ Production Ready
