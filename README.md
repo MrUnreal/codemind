@@ -2,7 +2,7 @@
 
 > Give GitHub Copilot memory across all your projects
 
-[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)](https://github.com/MrUnreal/codemind/actions) [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **CodeMind** is an MCP server that gives GitHub Copilot 20 specialized tools for understanding your codebase.
 
@@ -67,21 +67,36 @@ pip install -r requirements.txt
 
 **2. Configure VS Code**
 
-Add to `.vscode/settings.json`:
+Add to your VS Code settings (Ctrl+Shift+P → "Preferences: Open User Settings (JSON)"):
 ```json
 {
   "mcp.servers": {
     "codemind": {
       "command": "python",
-      "args": ["D:/path/to/codemind/codemind.py"]
+      "args": ["/full/path/to/codemind.py"],
+      "cwd": "${workspaceFolder}"
     }
   }
 }
 ```
 
-**3. Reload**
+**Replace `/full/path/to/codemind.py`** with the actual path to where you cloned CodeMind.
+
+**3. Reload VS Code**
 
 Press `Ctrl+Shift+P` → "Developer: Reload Window"
+
+**4. Test It**
+
+Open Copilot Chat and try:
+```
+Does this project have authentication?
+```
+
+Done! 🎉
+
+**Need help?** Check our [Troubleshooting Guide](GETTING_STARTED.md#troubleshooting)
+
 
 ---
 
@@ -102,15 +117,26 @@ Press `Ctrl+Shift+P` → "Developer: Reload Window"
 
 ## How It Works
 
-**You ask naturally:**
 ```
-"Add authentication"
+┌─────────────────────────────────────────────────────────────┐
+│  You: "Add authentication"                                  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         v
+┌─────────────────────────────────────────────────────────────┐
+│  Copilot (with CodeMind):                                   │
+│  🔍 Searching existing code...                              │
+│  âś… Found: src/auth/jwt.py (95% match)                      │
+│  💡 "I found existing JWT auth. Should I extend it?"        │
+└─────────────────────────────────────────────────────────────┘
+
+Without CodeMind:
+❌ Creates duplicate auth files
+❌ Doesn't know about existing code
+❌ No context of your architecture
 ```
 
-**Copilot automatically:**
-1. Searches existing code
-2. Finds `src/auth/jwt.py`
-3. Suggests modifying it instead of creating new files
+**You ask naturally** → **Copilot automatically uses CodeMind** → **Gets smart suggestions**
 
 **No explicit tool calls needed!**
 
@@ -147,21 +173,23 @@ Work with multiple projects simultaneously:
 
 | Document | Purpose |
 |----------|---------|
+| [Getting Started](GETTING_STARTED.md) | **Start here!** Complete beginner's guide |
 | [Usage Guide](USAGE_GUIDE.md) | How to use with Copilot |
-| [Changelog](CHANGELOG.md) | Version history |
+| [Contributing](CONTRIBUTING.md) | How to contribute to CodeMind |
 | [Tools Reference](docs/TOOLS.md) | All 20 tools explained |
-| [Architecture](docs/ARCHITECTURE.md) | Technical details |
 | [Examples](docs/EXAMPLES.md) | Real-world scenarios |
 | [FAQ](docs/FAQ.md) | Common questions |
+| [Architecture](docs/ARCHITECTURE.md) | Technical details |
+| [Changelog](CHANGELOG.md) | Version history |
 
 ---
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.8 or higher
 - VS Code with GitHub Copilot
-- ~80MB for embedding model
-- ~5MB per project for database
+- ~80MB for embedding model (downloaded automatically on first use)
+- ~1-5MB per project for database
 
 ---
 

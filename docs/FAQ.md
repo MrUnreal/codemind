@@ -86,19 +86,20 @@ rm -rf .codemind
 
 ### What are the requirements?
 
-- **Python**: 3.10 or higher
+- **Python**: 3.8 or higher (3.10+ recommended)
 - **VS Code**: Latest version
 - **GitHub Copilot**: Extension installed
 - **OS**: Windows, macOS, or Linux
 
 ---
 
-### Why Python 3.10+?
+### Why Python 3.8+?
 
-CodeMind uses modern Python features:
-- Type hints with `|` syntax
-- Structural pattern matching (optional)
-- Better async support
+CodeMind is compatible with Python 3.8+ for broader compatibility:
+- Works on most modern systems
+- Supports all major Python 3 features
+- Type hints support
+- Python 3.10+ recommended for best performance and latest features
 
 ---
 

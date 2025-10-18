@@ -69,12 +69,12 @@ npm publish
   - [ ] `codemind/__init__.py` (line 12)
   - [ ] `LICENSE` (line 3)
 
-- [ ] Update GitHub URLs (replace `yourusername`):
+- [x] Update GitHub URLs (replaced `yourusername` with `MrUnreal`):
 
-  - [ ] `pyproject.toml` (lines 40-45)
-  - [ ] `setup.py` (line 32, 57-61)
-  - [ ] `package.json` (lines 24-29)
-  - [ ] All documentation files
+  - [x] `pyproject.toml` (lines 40-45)
+  - [x] `setup.py` (line 32, 57-61)
+  - [x] `package.json` (lines 24-29)
+  - [x] All documentation files
 
 - [ ] Verify package name availability:
   - [ ] Check PyPI: https://pypi.org/project/mcp-codemind/
@@ -134,7 +134,7 @@ npm publish
 
 ### 3. GitHub Releases
 
-- **URL**: https://github.com/yourusername/codemind/releases
+- **URL**: https://github.com/MrUnreal/codemind/releases
 - **Users**: Download source or pre-built packages
 - **Best for**: Developers, source installations
 

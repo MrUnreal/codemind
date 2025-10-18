@@ -1,4 +1,4 @@
-﻿# CodeMind Installation Guide
+# CodeMind Installation Guide
 
 Complete installation instructions for different platforms and use cases.
 
@@ -19,7 +19,7 @@ npm install -g mcp-codemind
 ### From Source (Development)
 
 ```bash
-git clone https://github.com/yourusername/codemind.git
+git clone https://github.com/MrUnreal/codemind.git
 cd codemind
 pip install -r requirements.txt
 ```
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ## đź“‹ Prerequisites
 
-- **Python 3.8+** (required)
+- **Python 3.8 or higher** (3.10+ recommended)
 - **pip** (Python package manager)
 - **Git** (for source installation)
 - **Node.js 14+** (optional, only for npm installation)
@@ -75,7 +75,7 @@ For developers or users who want the latest features:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/codemind.git
+git clone https://github.com/MrUnreal/codemind.git
 cd codemind
 
 # Create virtual environment
@@ -387,8 +387,8 @@ After installation:
 
 ## đź† Getting Help
 
-- **GitHub Issues**: https://github.com/yourusername/codemind/issues
-- **Documentation**: https://github.com/yourusername/codemind/blob/master/README.md
+- **GitHub Issues**: https://github.com/MrUnreal/codemind/issues
+- **Documentation**: https://github.com/MrUnreal/codemind/blob/master/README.md
 - **FAQ**: `docs/FAQ.md`
 
 ---

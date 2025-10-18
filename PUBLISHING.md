@@ -165,7 +165,7 @@ git push origin v2.0.1
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/codemind.git
+git clone https://github.com/MrUnreal/codemind.git
 cd codemind
 
 # Create virtual environment
@@ -285,7 +285,7 @@ npm publish
 1. **Package names**:
 
    - PyPI: `mcp-codemind` (check availability first!)
-   - npm: `mcp-codemind` or `@yourusername/codemind`
+   - npm: `mcp-codemind` or `@mrunreal/codemind`
 
 2. **Version sync**: Keep versions synchronized across:
 
