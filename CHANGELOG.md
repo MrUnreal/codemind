@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.1] - 2025-10-17
+## [2.0.1] - 2024-10-17
 
 ### Added
 
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.0] - 2025-10-15
+## [2.0.0] - 2024-10-15
 
 ### 🎉 Major Release - Complete Package Restructure
 
@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.1.0] - 2025-10-01
+## [1.1.0] - 2024-10-01
 
 ### Added
 
@@ -131,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - 2025-09-15
+## [1.0.0] - 2024-09-15
 
 ### 🎉 Initial Release
 
@@ -184,10 +184,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Key Features                                          | Tools | Lines of Code |
 | ------- | ---------- | ----------------------------------------------------- | ----- | ------------- |
-| 2.0.1   | 2025-10-17 | Proactive tools, enhanced docs                        | 20    | ~2,600        |
-| 2.0.0   | 2025-10-15 | Multi-workspace, modular structure, zero-LLM analysis | 20    | ~2,577        |
-| 1.1.0   | 2025-10-01 | Decision tracking, refactoring safety                 | 16    | ~2,000        |
-| 1.0.0   | 2025-09-15 | Initial release, core functionality                   | 12    | ~1,500        |
+| 2.0.1   | 2024-10-17 | Proactive tools, enhanced docs                        | 20    | ~2,600        |
+| 2.0.0   | 2024-10-15 | Multi-workspace, modular structure, zero-LLM analysis | 20    | ~2,577        |
+| 1.1.0   | 2024-10-01 | Decision tracking, refactoring safety                 | 16    | ~2,000        |
+| 1.0.0   | 2024-09-15 | Initial release, core functionality                   | 12    | ~1,500        |
 
 ---
 

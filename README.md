@@ -2,7 +2,7 @@
 
 > Give GitHub Copilot memory across all your projects
 
-[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)]() [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Tests](https://img.shields.io/badge/tests-110%2B%20passing-brightgreen)](https://github.com/MrUnreal/codemind/actions) [![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/) [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **CodeMind** is an MCP server that gives GitHub Copilot 20 specialized tools for understanding your codebase.
 
@@ -129,10 +129,10 @@ Work with multiple projects simultaneously:
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.8 or higher
 - VS Code with GitHub Copilot
-- ~80MB for embedding model
-- ~5MB per project for database
+- ~80MB for embedding model (downloaded automatically on first use)
+- ~1-5MB per project for database
 
 ---
 
