@@ -1,0 +1,52 @@
+{
+  "name": "mcp-codemind",
+  "version": "2.0.1",
+  "description": "Multi-Workspace MCP Memory Server for GitHub Copilot",
+  "main": "bin/codemind.js",
+  "bin": {
+    "codemind": "./bin/codemind.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "python -m pip install -r requirements.txt || pip install -r requirements.txt"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "github-copilot",
+    "code-analysis",
+    "semantic-search",
+    "vscode"
+  ],
+  "author": "MrUnreal <mrunreal@users.noreply.github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrUnreal/codemind.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MrUnreal/codemind/issues"
+  },
+  "homepage": "https://github.com/MrUnreal/codemind#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.8.0"
+  },
+  "files": [
+    "bin/",
+    "codemind/",
+    "codemind.py",
+    "requirements.txt",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "mcp": {
+    "server": true,
+    "protocol": "stdio",
+    "capabilities": [
+      "tools",
+      "resources"
+    ]
+  }
+}

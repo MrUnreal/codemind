@@ -2,8 +2,17 @@
 
 A lightweight Model Context Protocol (MCP) server that gives GitHub Copilot 
 queryable memory about your project.
+
+Features:
+- 20 specialized tools for code analysis
+- Automatic re-indexing of modified files
+- Multi-workspace support with isolated databases
+- Semantic search using sentence-transformers
+- Code metrics and quality analysis
 """
-__version__ = "2.0.0"
+__version__ = "2.0.1"
+__author__ = "MrUnreal"
+__license__ = "MIT"
 
 from .workspace import (
     get_workspace_path,
