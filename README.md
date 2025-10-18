@@ -6,7 +6,7 @@
 
 **CodeMind** is an MCP server that gives GitHub Copilot 20 specialized tools for understanding your codebase.
 
-<!-- mcp-name: io.github.mrunreal/codemind -->
+<!-- mcp-name: io.github.MrUnreal/codemind -->
 
 ---
 

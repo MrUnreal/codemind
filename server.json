@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
-  "name": "io.github.mrunreal/codemind",
+  "name": "io.github.MrUnreal/codemind",
   "title": "CodeMind",
   "description": "MCP server with 20 tools for code analysis, semantic search, and project understanding",
   "version": "2.0.3",
